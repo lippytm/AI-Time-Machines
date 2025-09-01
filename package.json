@@ -1,0 +1,36 @@
+{
+  "name": "lippytm-chatgpt-ai-web3",
+  "version": "1.0.0",
+  "description": "ChatGPT AI with Web3 wallet and integrated payment system",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "keywords": [
+    "chatgpt",
+    "ai",
+    "web3",
+    "ethereum",
+    "payments",
+    "blockchain"
+  ],
+  "author": "lippytm",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "express": "^4.18.2",
+    "ethers": "^6.8.0",
+    "nodemailer": "^6.9.0",
+    "dotenv": "^16.3.0",
+    "cors": "^2.8.5",
+    "helmet": "^7.0.0",
+    "express-rate-limit": "^6.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
