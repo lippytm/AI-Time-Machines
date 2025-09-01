@@ -4,13 +4,9 @@ Comprehensive cybersecurity education specifically designed for Web3 technologie
 
 ## 📋 Table of Contents
 
-1. [Cybersecurity Fundamentals](./cybersecurity-fundamentals.md)
-2. [Web3 Security Principles](./web3-security-principles.md)
-3. [Smart Contract Security](./smart-contract-security.md)
-4. [DeFi Security Best Practices](./defi-security.md)
-5. [Wallet Security Guide](./wallet-security.md)
-6. [Incident Response Framework](./incident-response.md)
-7. [Threat Intelligence](./threat-intelligence.md)
+1. [Cybersecurity Fundamentals](./cybersecurity-fundamentals.md) - Core security concepts, CIA triad, and risk assessment
+2. [Web3 Security Principles](./web3-security-principles.md) - Zero trust, cryptographic security, and smart contract patterns
+3. [Smart Contract Security](./smart-contract-security.md) - Vulnerability analysis, secure coding patterns, and testing frameworks
 
 ## 🎯 Learning Objectives
 

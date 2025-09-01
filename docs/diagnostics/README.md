@@ -4,12 +4,10 @@ Welcome to the comprehensive diagnostics section of AI-Time-Machines educational
 
 ## 📋 Table of Contents
 
-1. [Diagnostic Methodologies](./diagnostic-methodologies.md)
-2. [Web3 Troubleshooting Guide](./web3-troubleshooting.md)
-3. [System Analysis Frameworks](./system-analysis.md)
-4. [Performance Monitoring](./performance-monitoring.md)
-5. [Error Handling Strategies](./error-handling.md)
-6. [AI-Enhanced Diagnostics](./ai-enhanced-diagnostics.md)
+1. [Diagnostic Methodologies](./diagnostic-methodologies.md) - Systematic DIAAID framework for Web3 problem resolution
+2. [Web3 Troubleshooting Guide](./web3-troubleshooting.md) - Common issues, solutions, and debugging techniques
+3. [System Analysis Frameworks](./system-analysis.md) - Multi-layer analysis and optimization strategies
+4. [AI-Enhanced Diagnostics](./ai-enhanced-diagnostics.md) - Machine learning-powered diagnostic tools and automation
 
 ## 🎯 Learning Objectives
 
