@@ -1,0 +1,35 @@
+# Example configuration for lippytm ChatGPT.AI
+# Copy this file to config.yaml and customize as needed
+
+# AI Backend Configuration
+backend: "openai"  # Options: "openai", "transformers", "echo"
+
+# OpenAI Configuration (if using OpenAI backend)
+openai_api_key: ""  # Set your OpenAI API key here or use OPENAI_API_KEY env var
+openai_model: "gpt-3.5-turbo"  # Options: gpt-3.5-turbo, gpt-4, etc.
+
+# Local Model Configuration (if using transformers backend)
+local_model: "microsoft/DialoGPT-medium"  # Hugging Face model name
+
+# Generation Parameters
+max_tokens: 1000
+temperature: 0.7
+max_conversation_history: 50
+
+# System Prompt
+system_prompt: |
+  You are lippytm ChatGPT.AI, an intelligent assistant with time machine capabilities.
+  You can help users with various tasks, provide insightful responses, and engage in
+  meaningful conversations. You have access to knowledge from different time periods
+  and can provide historical context when relevant. Be helpful, accurate, and engaging.
+
+# Logging Configuration
+logging:
+  level: "INFO"  # Options: DEBUG, INFO, WARNING, ERROR
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+# UI Configuration
+ui:
+  prompt_style: "modern"
+  show_timestamps: true
+  colorize_output: true
