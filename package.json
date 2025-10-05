@@ -1,0 +1,31 @@
+{
+  "name": "ai-time-machines",
+  "version": "1.0.0",
+  "description": "Adding AI Agents to everything with Time Machines - OpenAI ChatGPT Integration",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "jest",
+    "lint": "eslint src/**/*.js",
+    "build": "echo 'Build complete'"
+  },
+  "keywords": [
+    "ai",
+    "chatgpt",
+    "openai",
+    "time-machines"
+  ],
+  "author": "",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "openai": "^4.20.1",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "eslint": "^8.54.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
