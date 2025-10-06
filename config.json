@@ -1,0 +1,17 @@
+{
+  "chatgpt_ai": {
+    "name": "lippytm ChatGPT.AI",
+    "version": "1.0.0",
+    "email": "lippytimemachines@gmail.com",
+    "notifications": {
+      "enabled": true,
+      "email_notifications": true,
+      "contact_email": "lippytimemachines@gmail.com"
+    },
+    "communication": {
+      "support_email": "lippytimemachines@gmail.com",
+      "admin_email": "lippytimemachines@gmail.com"
+    },
+    "description": "AI Time Machines ChatGPT.AI system configuration with integrated email communication for notifications and support."
+  }
+}
