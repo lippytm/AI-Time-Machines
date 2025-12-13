@@ -1,12 +1,14 @@
 const ChatGPT = require('./chatgpt');
+const FineTuningManager = require('./fine-tuning');
 
 /**
  * Main entry point for AI-Time-Machines ChatGPT Integration
  */
 
-// Export the ChatGPT class for use in other modules
+// Export the ChatGPT class and FineTuningManager for use in other modules
 module.exports = {
   ChatGPT,
+  FineTuningManager,
 };
 
 /**
