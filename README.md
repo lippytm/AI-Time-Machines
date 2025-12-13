@@ -144,14 +144,30 @@ npm run lint
 ```
 AI-Time-Machines/
 ├── src/
-│   ├── chatgpt.js       # ChatGPT wrapper class
-│   └── index.js         # Main entry point with examples
+│   ├── chatgpt.js           # ChatGPT wrapper class
+│   ├── fine-tuning.js       # Fine-tuning management module
+│   └── index.js             # Main entry point
+├── agents/
+│   ├── time-travel-assistant.js      # Time travel planning agent
+│   ├── historical-context-agent.js   # Historical information agent
+│   ├── temporal-paradox-resolver.js  # Paradox analysis agent
+│   └── index.js                      # Agent exports
+├── datasets/
+│   └── time-machine-training.jsonl   # Sample training data
+├── docs/
+│   ├── API_CONFIG.md        # API configuration guide
+│   └── FINE_TUNING.md       # Fine-tuning guide
 ├── tests/
-│   └── chatgpt.test.js  # Unit tests
-├── .env.example         # Environment variable template
-├── .gitignore           # Git ignore rules
-├── package.json         # Project dependencies
-└── README.md           # This file
+│   ├── chatgpt.test.js      # ChatGPT tests
+│   ├── fine-tuning.test.js  # Fine-tuning tests
+│   └── agents.test.js       # Agent tests
+├── examples.js              # Usage examples
+├── agent-examples.js        # Agent implementation examples
+├── .env.example             # Environment variable template
+├── .gitignore               # Git ignore rules
+├── package.json             # Project dependencies
+├── QUICKSTART.md            # Quick start guide
+└── README.md                # This file
 ```
 
 ## Security Best Practices
@@ -171,6 +187,7 @@ With an OpenAI Pro account, you can access:
 - **Higher rate limits**: More requests per minute
 - **Priority access**: Faster response times
 - **Extended context**: Longer conversation history
+- **Fine-tuning**: Customize models for time-machine-specific queries
 
 To use GPT-4 (requires appropriate API access):
 
@@ -178,6 +195,101 @@ To use GPT-4 (requires appropriate API access):
 const chatgpt = new ChatGPT();
 chatgpt.setModel('gpt-4');
 ```
+
+### Backend AI Agents
+
+AI-Time-Machines includes specialized backend agents for various time-machine-related tasks:
+
+#### Time Travel Assistant
+
+Plan safe and educational time travel journeys:
+
+```javascript
+const { TimeTravelAssistant } = require('./agents');
+
+const assistant = new TimeTravelAssistant();
+
+// Get personalized recommendations
+const recommendation = await assistant.recommendTimePeriod('Renaissance art');
+
+// Get safety briefing
+const safety = await assistant.getSafetyBriefing('ancient Egypt, 2500 BCE');
+
+// Have a conversation
+const response = await assistant.chat('What should I bring to ancient Rome?');
+```
+
+#### Historical Context Agent
+
+Get detailed historical information:
+
+```javascript
+const { HistoricalContextAgent } = require('./agents');
+
+const agent = new HistoricalContextAgent();
+
+// Analyze a time period
+const analysis = await agent.analyzePeriod('Victorian England', 'Britain');
+
+// Compare periods
+const comparison = await agent.comparePeriods('Medieval Europe', 'Ancient Rome');
+
+// Get daily life details
+const dailyLife = await agent.getDailyLife('1850s Paris', 'working class');
+```
+
+#### Temporal Paradox Resolver
+
+Analyze and resolve temporal paradoxes:
+
+```javascript
+const { TemporalParadoxResolver } = require('./agents');
+
+const resolver = new TemporalParadoxResolver();
+
+// Analyze a scenario for paradoxes
+const analysis = await resolver.analyzeScenario('Going back to prevent World War I');
+
+// Explain paradox types
+const explanation = await resolver.explainParadox('grandfather');
+
+// Check if an action would create a paradox
+const evaluation = await resolver.evaluateAction('prevent an assassination', '1914');
+```
+
+#### Running Agent Examples
+
+```bash
+node agent-examples.js
+```
+
+### Fine-Tuning for Time Machine Queries
+
+Fine-tune OpenAI models with time-machine-specific training data:
+
+```javascript
+const { FineTuningManager } = require('./src/index');
+
+const manager = new FineTuningManager();
+
+// Upload training data
+const file = await manager.uploadTrainingFile('datasets/time-machine-training.jsonl');
+
+// Create fine-tuning job
+const job = await manager.createFineTuningJob(file.id, {
+  model: 'gpt-3.5-turbo',
+  epochs: 3,
+  suffix: 'time-machine'
+});
+
+// Monitor job status
+const status = await manager.getJobStatus(job.id);
+
+// Use fine-tuned model
+chatgpt.setModel(status.fine_tuned_model);
+```
+
+For detailed fine-tuning instructions, see [docs/FINE_TUNING.md](docs/FINE_TUNING.md).
 
 ## Troubleshooting
 
@@ -217,6 +329,15 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 - [OpenAI API Documentation](https://platform.openai.com/docs)
 - [OpenAI Platform](https://platform.openai.com/)
 - [Node.js OpenAI SDK](https://github.com/openai/openai-node)
+- [API Configuration Guide](docs/API_CONFIG.md)
+- [Fine-Tuning Guide](docs/FINE_TUNING.md)
+
+## Documentation
+
+- **[QUICKSTART.md](QUICKSTART.md)** - Get started in minutes
+- **[API_CONFIG.md](docs/API_CONFIG.md)** - Comprehensive API setup and security guide
+- **[FINE_TUNING.md](docs/FINE_TUNING.md)** - Fine-tuning models for time machine queries
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Contribution guidelines
 
 ## Support
 
