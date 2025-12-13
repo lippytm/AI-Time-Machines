@@ -7,7 +7,6 @@ const { ChatGPT } = require('../src/index');
 class TimeTravelAssistant {
   constructor(apiKey = null) {
     this.chatgpt = new ChatGPT(apiKey);
-    this.conversationHistory = [];
     
     // System prompt that defines the agent's personality and expertise
     this.systemPrompt = {
@@ -22,6 +21,9 @@ class TimeTravelAssistant {
       
       Always be helpful, informative, and emphasize safety and historical accuracy.`
     };
+    
+    // Initialize conversation history with system prompt
+    this.conversationHistory = [this.systemPrompt];
   }
 
   /**

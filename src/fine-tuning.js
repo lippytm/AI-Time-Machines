@@ -129,7 +129,7 @@ class FineTuningManager {
    */
   async deleteModel(modelId) {
     try {
-      const result = await this.client.models.del(modelId);
+      const result = await this.client.models.delete(modelId);
       console.log(`✓ Model deleted: ${modelId}`);
       return result;
     } catch (error) {
