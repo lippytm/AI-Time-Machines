@@ -8,11 +8,15 @@ const {
   deleteTimeSeries
 } = require('../controllers/timeSeriesController');
 const { auth } = require('../middleware/auth');
+const { apiLimiter, createLimiter } = require('../middleware/rateLimiter');
 
 const router = express.Router();
 
 // All routes require authentication
 router.use(auth);
+
+// Apply general API rate limiting
+router.use(apiLimiter);
 
 // Get all time series
 router.get('/', getAllTimeSeries);
@@ -22,6 +26,7 @@ router.get('/:id', getTimeSeries);
 
 // Create time series
 router.post('/',
+  createLimiter,
   [
     body('name').trim().notEmpty().withMessage('Name is required'),
     body('data').isArray({ min: 1 }).withMessage('Data must be a non-empty array'),

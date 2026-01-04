@@ -8,11 +8,15 @@ const {
   deleteModel
 } = require('../controllers/modelsController');
 const { auth } = require('../middleware/auth');
+const { apiLimiter, createLimiter } = require('../middleware/rateLimiter');
 
 const router = express.Router();
 
 // All routes require authentication
 router.use(auth);
+
+// Apply general API rate limiting
+router.use(apiLimiter);
 
 // Get all models
 router.get('/', getAllModels);
@@ -22,6 +26,7 @@ router.get('/:id', getModel);
 
 // Create model
 router.post('/',
+  createLimiter,
   [
     body('name').trim().notEmpty().withMessage('Name is required'),
     body('timeSeriesId').isUUID().withMessage('Valid time series ID is required'),
