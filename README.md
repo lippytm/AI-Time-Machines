@@ -1,226 +1,355 @@
 # AI-Time-Machines
 
-Adding AI Agents to everything with Time Machines - OpenAI ChatGPT Integration
+**Full Stack AI Platform for Time-Series Agent Creation and Management**
 
-## Overview
+AI-Time-Machines is a comprehensive Full Stack platform that combines React, Node.js, Python ML services, and PostgreSQL to create and manage time-series AI agents with advanced forecasting capabilities.
 
-AI-Time-Machines is a powerful integration that brings OpenAI's ChatGPT capabilities to your applications. This repository provides a clean, easy-to-use wrapper for interacting with the OpenAI API, enabling advanced AI-powered conversations and automation.
+## 🌟 Features
 
-## Prerequisites
+### Frontend (React + TailwindCSS)
+- 🎨 Modern, responsive UI with TailwindCSS
+- 🔐 User authentication (Login/Register)
+- 📊 Interactive dashboard with real-time statistics
+- 📈 Time-series data upload and management
+- 🤖 AI model training interface
+- 🔮 Predictions visualization
 
-Before you begin, ensure you have the following installed:
+### Backend (Node.js + Express)
+- ⚡ RESTful API with Express.js
+- 🔒 JWT-based authentication with bcrypt
+- 🗄️ PostgreSQL database with Sequelize ORM
+- 📝 Comprehensive API endpoints for:
+  - User management
+  - Time-series data operations
+  - AI model training workflows
+  - Prediction generation
+
+### AI/ML Service (Python + TensorFlow)
+- 🧠 Time-series forecasting models:
+  - LSTM (Long Short-Term Memory)
+  - GRU (Gated Recurrent Unit)
+  - ARIMA (Statistical forecasting)
+  - Prophet (Seasonal patterns)
+  - Transformer (Complex patterns)
+- 📊 Model training and prediction APIs
+- 💾 Model persistence and versioning
+
+### Infrastructure
+- 🐳 Docker containerization
+- 🔄 Docker Compose orchestration
+- 🚀 CI/CD with GitHub Actions
+- 🔍 Security scanning and dependency review
+
+## 📋 Prerequisites
 
 - **Node.js** (version 18.0.0 or higher)
-- **npm** (comes with Node.js)
-- **OpenAI API Key** (requires an OpenAI account)
+- **Python** (version 3.11 or higher)
+- **PostgreSQL** (version 15 or higher)
+- **Docker** and **Docker Compose** (for containerized deployment)
+- **OpenAI API Key** (optional, for ChatGPT integration)
 
-## Getting Started
+## 🚀 Quick Start
 
-### 1. Clone the Repository
+### Option 1: Docker Compose (Recommended)
 
-```bash
-git clone https://github.com/lippytm/AI-Time-Machines.git
-cd AI-Time-Machines
-```
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/lippytm/AI-Time-Machines.git
+   cd AI-Time-Machines
+   ```
 
-### 2. Install Dependencies
+2. **Set up environment variables**
+   ```bash
+   cp .env.example .env
+   # Edit .env and add your configuration
+   ```
 
-```bash
-npm install
-```
+3. **Start all services**
+   ```bash
+   docker-compose up -d
+   ```
 
-### 3. Set Up Your OpenAI API Key
+4. **Access the application**
+   - Frontend: http://localhost:3000
+   - Backend API: http://localhost:5000
+   - Python ML Service: http://localhost:8000
 
-#### Obtain Your API Key
+### Option 2: Local Development
 
-1. Create an account or log in at [OpenAI Platform](https://platform.openai.com/)
-2. Navigate to [API Keys](https://platform.openai.com/api-keys)
-3. Click "Create new secret key"
-4. Copy your API key (you won't be able to see it again!)
-
-#### Configure Environment Variables
-
-1. Copy the example environment file:
+#### 1. Set Up Environment Variables
 
 ```bash
 cp .env.example .env
 ```
 
-2. Open `.env` and replace `your_openai_api_key_here` with your actual API key:
+Edit `.env` with your configuration:
+```env
+# Database
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=ai_time_machines
+DB_USER=postgres
+DB_PASSWORD=your_password
 
-```bash
-OPENAI_API_KEY=sk-your-actual-api-key-here
+# JWT
+JWT_SECRET=your_secret_key
+JWT_EXPIRES_IN=7d
+
+# Servers
+BACKEND_PORT=5000
+FRONTEND_PORT=3000
+PYTHON_SERVICE_PORT=8000
 ```
 
-⚠️ **Important**: Never commit your `.env` file to version control. It's already included in `.gitignore`.
-
-## Usage
-
-### Running the Examples
-
-Run the included examples to test your setup:
+#### 2. Set Up PostgreSQL Database
 
 ```bash
+createdb ai_time_machines
+```
+
+#### 3. Install Dependencies
+
+**Backend:**
+```bash
+cd backend
+npm install
+```
+
+**Frontend:**
+```bash
+cd frontend
+npm install
+```
+
+**Python Service:**
+```bash
+cd python-service
+pip install -r requirements.txt
+```
+
+#### 4. Start Services
+
+**Terminal 1 - Backend:**
+```bash
+cd backend
+npm run dev
+```
+
+**Terminal 2 - Frontend:**
+```bash
+cd frontend
 npm start
 ```
 
-This will execute several example interactions with ChatGPT, demonstrating:
-- Simple chat messages
-- Conversations with context
-- Custom parameters (temperature, max_tokens)
-
-### Using in Your Code
-
-```javascript
-const { ChatGPT } = require('./src/index');
-
-// Initialize ChatGPT
-const chatgpt = new ChatGPT();
-
-// Simple chat
-async function example() {
-  const response = await chatgpt.chat('Hello, ChatGPT!');
-  console.log(response);
-}
-
-// Conversation with context
-async function conversationExample() {
-  const messages = [
-    { role: 'system', content: 'You are a helpful assistant.' },
-    { role: 'user', content: 'What is AI?' }
-  ];
-  const response = await chatgpt.conversation(messages);
-  console.log(response);
-}
+**Terminal 3 - Python Service:**
+```bash
+cd python-service
+python app.py
 ```
 
-### Available Methods
+## 📖 Usage Guide
 
-#### `chat(message, options)`
+### 1. Register an Account
+- Navigate to http://localhost:3000
+- Click "Register" and create your account
+- Login with your credentials
 
-Send a single message to ChatGPT.
+### 2. Upload Time-Series Data
+- Go to "Time Series" section
+- Click "+ Upload Time Series"
+- Provide a name and description
+- Sample data will be generated automatically (or upload your CSV)
 
-- **message** (string): The message to send
-- **options** (object, optional):
-  - `model`: The model to use (default: 'gpt-4')
-  - `temperature`: Controls randomness, 0-1 (default: 0.7)
-  - `max_tokens`: Maximum response length (default: 1000)
+### 3. Train an AI Model
+- Navigate to "Models" section
+- Click "+ Train New Model"
+- Select your time series data
+- Choose a model type (LSTM, GRU, ARIMA, Prophet, or Transformer)
+- Click "Train Model"
 
-#### `conversation(messages, options)`
+### 4. Generate Predictions
+- Go to "Predictions" section
+- Click "+ Generate Prediction"
+- Select a trained model
+- Set prediction horizon (1-100 steps)
+- View predicted values and confidence intervals
 
-Have a conversation with context.
+## 🏗️ Architecture
 
-- **messages** (array): Array of message objects with `role` and `content`
-- **options** (object, optional): Same as `chat()` options
-
-#### `setModel(model)`
-
-Change the default model.
-
-```javascript
-chatgpt.setModel('gpt-3.5-turbo');
+```
+AI-Time-Machines/
+├── frontend/              # React frontend application
+│   ├── src/
+│   │   ├── components/   # Reusable UI components
+│   │   ├── contexts/     # React contexts (Auth)
+│   │   ├── pages/        # Page components
+│   │   ├── services/     # API service layer
+│   │   └── App.js        # Main application
+│   └── Dockerfile
+├── backend/              # Node.js backend API
+│   ├── src/
+│   │   ├── config/      # Database configuration
+│   │   ├── controllers/ # Request handlers
+│   │   ├── middleware/  # Auth & validation
+│   │   ├── models/      # Sequelize models
+│   │   ├── routes/      # API routes
+│   │   └── server.js    # Express server
+│   └── Dockerfile
+├── python-service/       # Python ML service
+│   ├── models/          # ML model implementations
+│   ├── app.py           # Flask application
+│   ├── requirements.txt # Python dependencies
+│   └── Dockerfile
+├── docker-compose.yml    # Multi-container orchestration
+└── .env.example         # Environment template
 ```
 
-#### `getAvailableModels()`
+## 🔌 API Endpoints
 
-Get a list of commonly available models.
+### Authentication
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - Login user
+- `GET /api/auth/me` - Get current user
+- `PUT /api/auth/profile` - Update profile
 
-## Development
+### Time Series
+- `GET /api/timeseries` - List all time series
+- `POST /api/timeseries` - Create time series
+- `GET /api/timeseries/:id` - Get time series
+- `PUT /api/timeseries/:id` - Update time series
+- `DELETE /api/timeseries/:id` - Delete time series
 
-### Running Tests
+### Models
+- `GET /api/models` - List all models
+- `POST /api/models` - Create and train model
+- `GET /api/models/:id` - Get model details
+- `DELETE /api/models/:id` - Delete model
 
+### Predictions
+- `GET /api/predictions` - List all predictions
+- `POST /api/predictions` - Generate prediction
+- `GET /api/predictions/:id` - Get prediction
+- `DELETE /api/predictions/:id` - Delete prediction
+
+## 🧪 Testing
+
+**Backend Tests:**
+```bash
+cd backend
+npm test
+```
+
+**Frontend Tests:**
+```bash
+cd frontend
+npm test
+```
+
+**Run All Tests:**
 ```bash
 npm test
 ```
 
-### Linting
+## 🐳 Docker Commands
 
 ```bash
-npm run lint
+# Build all images
+docker-compose build
+
+# Start services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+
+# Rebuild and restart
+docker-compose up -d --build
 ```
 
-### Project Structure
+## 🔒 Security Features
 
-```
-AI-Time-Machines/
-├── src/
-│   ├── chatgpt.js       # ChatGPT wrapper class
-│   └── index.js         # Main entry point with examples
-├── tests/
-│   └── chatgpt.test.js  # Unit tests
-├── .env.example         # Environment variable template
-├── .gitignore           # Git ignore rules
-├── package.json         # Project dependencies
-└── README.md           # This file
-```
+- ✅ JWT-based authentication
+- ✅ Password hashing with bcrypt
+- ✅ Environment variable management
+- ✅ CORS configuration
+- ✅ Helmet.js security headers
+- ✅ Input validation with express-validator
+- ✅ SQL injection protection (Sequelize ORM)
+- ✅ Regular security scanning (Trivy)
 
-## Security Best Practices
+## 🚦 CI/CD Pipeline
 
-- ✅ Always use environment variables for API keys
-- ✅ Never commit `.env` files to version control
-- ✅ Use `.env.example` as a template without real credentials
-- ✅ Keep your API key secure and don't share it publicly
-- ✅ Rotate your API keys regularly
-- ✅ Monitor your OpenAI usage dashboard for unexpected activity
+The project includes GitHub Actions workflows for:
+- Code quality and security scanning
+- Dependency review
+- Backend and frontend testing
+- Docker image builds
+- Documentation validation
 
-## Advanced Features (OpenAI Pro Account)
-
-With an OpenAI Pro account, you can access:
-
-- **GPT-4**: More capable model with better reasoning
-- **Higher rate limits**: More requests per minute
-- **Priority access**: Faster response times
-- **Extended context**: Longer conversation history
-
-To use GPT-4 (requires appropriate API access):
-
-```javascript
-const chatgpt = new ChatGPT();
-chatgpt.setModel('gpt-4');
-```
-
-## Troubleshooting
-
-### "OpenAI API key is required" Error
-
-Make sure your `.env` file exists and contains a valid API key:
-
-```bash
-OPENAI_API_KEY=sk-your-actual-api-key-here
-```
-
-### API Rate Limit Errors
-
-If you encounter rate limit errors, you may need to:
-- Wait a moment before retrying
-- Upgrade your OpenAI plan
-- Implement rate limiting in your application
-
-### Module Not Found Errors
-
-Ensure all dependencies are installed:
-
-```bash
-npm install
-```
-
-## Contributing
+## 🤝 Contributing
 
 We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
-## License
+## 📝 License
 
 This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
 
-## Resources
+## 🆘 Troubleshooting
 
-- [OpenAI API Documentation](https://platform.openai.com/docs)
-- [OpenAI Platform](https://platform.openai.com/)
-- [Node.js OpenAI SDK](https://github.com/openai/openai-node)
+### Database Connection Issues
+```bash
+# Check if PostgreSQL is running
+pg_isready
 
-## Support
+# Restart PostgreSQL
+sudo systemctl restart postgresql
+```
+
+### Port Conflicts
+If ports 3000, 5000, or 8000 are in use:
+```bash
+# Find and kill process on port
+lsof -ti:3000 | xargs kill -9
+```
+
+### Docker Issues
+```bash
+# Clean up Docker resources
+docker system prune -a
+
+# Rebuild from scratch
+docker-compose down -v
+docker-compose up --build
+```
+
+## 📚 Resources
+
+- [React Documentation](https://react.dev/)
+- [Express.js Documentation](https://expressjs.com/)
+- [TensorFlow Documentation](https://www.tensorflow.org/)
+- [Sequelize Documentation](https://sequelize.org/)
+- [Docker Documentation](https://docs.docker.com/)
+
+## 🎯 Roadmap
+
+- [ ] Advanced visualization with Chart.js/D3.js
+- [ ] Real-time predictions with WebSockets
+- [ ] Model comparison and benchmarking
+- [ ] Export predictions to CSV/Excel
+- [ ] Multi-variate time series support
+- [ ] Automated model hyperparameter tuning
+- [ ] Integration with external data sources
+- [ ] Mobile application
+
+## 📧 Support
 
 For questions and support:
+- Open an issue on [GitHub](https://github.com/lippytm/AI-Time-Machines/issues)
 - Check [GitHub Discussions](https://github.com/lippytm/AI-Time-Machines/discussions)
-- Review the [OpenAI API Documentation](https://platform.openai.com/docs)
-- Open an issue for bugs or feature requests 
+
+---
+
+**Built with ❤️ for AI and Time-Series Enthusiasts** 
