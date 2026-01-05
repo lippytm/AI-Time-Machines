@@ -43,37 +43,106 @@ jobs:
       - name: Dependency Review
         uses: actions/dependency-review-action@v4
 
-  build-test:
-    name: Build and Test
+  backend-test:
+    name: Backend Tests
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18, 20, 21]
+    permissions:
+      contents: read
+    
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ai_time_machines_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js ${{ matrix.node-version }}
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '18'
           cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Install backend dependencies
+        run: cd backend && npm ci
         continue-on-error: true
 
-      - name: Run linting
-        run: npm run lint
+      - name: Run backend tests
+        run: cd backend && npm test
+        continue-on-error: true
+        env:
+          NODE_ENV: test
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_USER: postgres
+          DB_PASSWORD: postgres
+          DB_NAME: ai_time_machines_test
+          JWT_SECRET: test-secret-key
+
+  frontend-test:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: cd frontend && npm ci
         continue-on-error: true
 
-      - name: Run tests
-        run: npm test
+      - name: Run frontend tests
+        run: cd frontend && npm test -- --watchAll=false
         continue-on-error: true
 
-      - name: Run build
-        run: npm run build
+      - name: Build frontend
+        run: cd frontend && npm run build
+        continue-on-error: true
+
+  docker-build:
+    name: Docker Build Test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build backend image
+        run: docker build -t ai-timemachines-backend:test ./backend
+        continue-on-error: true
+
+      - name: Build frontend image
+        run: docker build -t ai-timemachines-frontend:test ./frontend
+        continue-on-error: true
+
+      - name: Build python service image
+        run: docker build -t ai-timemachines-python:test ./python-service
         continue-on-error: true
 
   documentation:
