@@ -27,6 +27,12 @@
    - Issue: Content-Type Header ReDoS
    - Severity: Medium
 
+4. ✅ **python-jose algorithm confusion vulnerability**
+   - Previous: python-jose==3.3.0 (vulnerable)
+   - Updated: python-jose==3.4.0 (patched)
+   - Issue: Algorithm confusion with OpenSSH ECDSA keys
+   - Severity: Medium
+
 **Action Taken**: All dependencies updated to patched versions in requirements.txt
 
 ### Code Review
@@ -119,6 +125,7 @@
 - ✅ Updated to patched versions
 - ✅ fastapi 0.109.1 (was 0.104.1)
 - ✅ python-multipart 0.0.18 (was 0.0.6)
+- ✅ python-jose 3.4.0 (was 3.3.0)
 - ✅ Recent, maintained packages
 - ✅ No known vulnerable dependencies
 
