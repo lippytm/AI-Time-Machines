@@ -1,0 +1,23 @@
+# Default owners for everything in the repo
+* @lippytm
+
+# Frontend code
+/frontend/ @lippytm
+
+# Backend code
+/backend/ @lippytm
+
+# Python service
+/python-service/ @lippytm
+
+# Documentation
+*.md @lippytm
+/docs/ @lippytm
+
+# CI/CD and workflows
+/.github/ @lippytm
+
+# Configuration files
+*.yml @lippytm
+*.yaml @lippytm
+*.json @lippytm
