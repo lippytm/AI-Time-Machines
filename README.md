@@ -40,6 +40,15 @@ AI-Time-Machines is a comprehensive Full Stack platform that combines React, Nod
 - 🚀 CI/CD with GitHub Actions
 - 🔍 Security scanning and dependency review
 
+### OpenAI Integration & Fine-Tuning
+- 🤖 Specialized AI agents for time-travel scenarios:
+  - Historical Context Agent
+  - Temporal Paradox Resolver
+  - Time Travel Assistant
+- 🎯 Fine-tuning capabilities with custom datasets
+- 📚 Comprehensive API configuration and examples
+- ⚙️ Easy-to-use agent system with modular architecture
+
 ## 📋 Prerequisites
 
 - **Node.js** (version 18.0.0 or higher)
@@ -231,6 +240,70 @@ AI-Time-Machines/
 - `GET /api/predictions/:id` - Get prediction
 - `DELETE /api/predictions/:id` - Delete prediction
 
+## 🤖 OpenAI Integration Features
+
+### Specialized AI Agents
+
+The platform includes pre-built specialized AI agents for time-travel scenarios:
+
+1. **Historical Context Agent** (`agents/historical-context-agent.js`)
+   - Provides historical context and information
+   - Perfect for time-travel related queries
+
+2. **Temporal Paradox Resolver** (`agents/temporal-paradox-resolver.js`)
+   - Helps resolve time-travel paradoxes
+   - Analyzes temporal logic and consistency
+
+3. **Time Travel Assistant** (`agents/time-travel-assistant.js`)
+   - General-purpose time-travel assistant
+   - Guides users through time-travel scenarios
+
+### Using the Agents
+
+```javascript
+const { historicalContextAgent, paradoxResolver, timeTravelAssistant } = require('./agents');
+
+// Example: Get historical context
+const context = await historicalContextAgent.chat(
+  "What was happening in 1969 during the moon landing?"
+);
+
+// Example: Resolve a paradox
+const resolution = await paradoxResolver.chat(
+  "What happens if I prevent my own birth?"
+);
+
+// Example: Get travel assistance
+const guidance = await timeTravelAssistant.chat(
+  "How do I prepare for a trip to ancient Rome?"
+);
+```
+
+### Fine-Tuning
+
+Create custom AI models with your own data:
+
+```javascript
+const { fineTuneModel, listFineTuneJobs } = require('./src/fine-tuning');
+
+// Start a fine-tuning job
+const job = await fineTuneModel(
+  './datasets/time-machine-training.jsonl',
+  { model: 'gpt-4o-mini-2024-07-18', suffix: 'time-machine-v1' }
+);
+
+// Check fine-tuning status
+const jobs = await listFineTuneJobs();
+```
+
+See the [Fine-Tuning Guide](docs/FINE_TUNING.md) for detailed instructions.
+
+### Example Scripts
+
+- `agent-examples.js` - Demonstrates using specialized agents
+- `fine-tuning-example.js` - Shows how to fine-tune models
+- `examples.js` - Basic ChatGPT integration examples
+
 ## 🧪 Testing
 
 **Backend Tests:**
@@ -332,6 +405,9 @@ docker-compose up --build
 - [TensorFlow Documentation](https://www.tensorflow.org/)
 - [Sequelize Documentation](https://sequelize.org/)
 - [Docker Documentation](https://docs.docker.com/)
+- [OpenAI API Documentation](https://platform.openai.com/docs/)
+- [Fine-Tuning Guide](docs/FINE_TUNING.md)
+- [API Configuration Guide](docs/API_CONFIG.md)
 
 ## 🎯 Roadmap
 
@@ -343,6 +419,9 @@ docker-compose up --build
 - [ ] Automated model hyperparameter tuning
 - [ ] Integration with external data sources
 - [ ] Mobile application
+- [ ] More specialized AI agents
+- [ ] Advanced fine-tuning workflows
+- [ ] Agent conversation history and persistence
 
 ## 📧 Support
 
