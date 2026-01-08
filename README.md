@@ -1,8 +1,8 @@
 # AI-Time-Machines
 
-**Full Stack AI Platform for Time-Series Agent Creation and Management**
+**Full Stack AI Platform for Time-Series Agent Creation, Management, and OpenAI Integration**
 
-AI-Time-Machines is a comprehensive Full Stack platform that combines React, Node.js, Python ML services, and PostgreSQL to create and manage time-series AI agents with advanced forecasting capabilities.
+AI-Time-Machines is a comprehensive Full Stack platform that combines React, Node.js, Python ML services, PostgreSQL, and OpenAI's advanced AI capabilities to create and manage time-series AI agents with forecasting and conversational AI features.
 
 ## 🌟 Features
 
