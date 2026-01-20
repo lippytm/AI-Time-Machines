@@ -12,6 +12,8 @@ const {
 } = require('../sdk/node/index');
 
 describe('AI/Web3 SDK Configuration', () => {
+  const originalEnv = { ...process.env };
+
   beforeEach(() => {
     // Clear environment variables
     delete process.env.AI_API_KEY;
@@ -19,6 +21,11 @@ describe('AI/Web3 SDK Configuration', () => {
     delete process.env.WEB3_RPC_URL;
     delete process.env.MESSAGING_TOKEN;
     delete process.env.DATABASE_URL;
+  });
+
+  afterEach(() => {
+    // Restore original environment
+    process.env = { ...originalEnv };
   });
 
   describe('AIProviderConfig', () => {
