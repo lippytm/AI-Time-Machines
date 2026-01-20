@@ -1,0 +1,48 @@
+[package]
+name = "ai-time-machines-rust"
+version = "2.0.0"
+edition = "2021"
+rust-version = "1.75"
+description = "Rust service components for AI Time Machines Platform"
+
+[dependencies]
+# Core dependencies
+tokio = { version = "1.35", features = ["full"] }
+dotenv = "0.15"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Database
+sqlx = { version = "0.7", features = ["runtime-tokio-native-tls", "postgres"], optional = true }
+
+# Optional AI Stack dependencies
+# Uncomment to enable specific features
+# openai-api-rs = { version = "4.0", optional = true }
+
+# Optional Web3 dependencies
+# ethers = { version = "2.0", optional = true }
+# solana-client = { version = "1.17", optional = true }
+
+# Optional messaging
+# slack-morphism = { version = "1.14", optional = true }
+# serenity = { version = "0.12", optional = true }  # Discord
+
+# Optional data/storage
+# redis = { version = "0.24", optional = true }
+# aws-sdk-s3 = { version = "1.10", optional = true }
+
+[features]
+default = []
+ai = []  # Enable with openai-api-rs when uncommented
+web3 = []  # Enable with ethers/solana when uncommented
+messaging = []  # Enable with slack/discord when uncommented
+data = ["sqlx"]  # Enable with redis/s3 when uncommented
+all = ["ai", "web3", "messaging", "data"]
+
+[dev-dependencies]
+# Add test dependencies as needed
+
+[[bin]]
+name = "ai-time-machines-rust"
+path = "src-rust/main.rs"
+required-features = []

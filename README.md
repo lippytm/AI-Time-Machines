@@ -333,7 +333,152 @@ docker-compose up --build
 - [Sequelize Documentation](https://sequelize.org/)
 - [Docker Documentation](https://docs.docker.com/)
 
-## 🎯 Roadmap
+## 🔌 AI/Web3 Integration Adapters
+
+AI Time Machines includes optional integration adapters for AI, Web3, messaging, and data storage services. These adapters provide a consistent configuration pattern across Node.js, Python, Go, and Rust.
+
+### Available Providers
+
+#### AI Stack
+- **OpenAI**: GPT-4, GPT-3.5, and other models
+- **Hugging Face**: Transformers and Inference API
+- **LangChain**: Framework for LLM applications
+- **LlamaIndex**: Data framework for LLM applications
+
+#### Vector Stores
+- **Pinecone**: Managed vector database
+- **Weaviate**: Open-source vector search engine
+- **Chroma**: Embedding database
+- Note: Some vector stores can be resource-intensive. Install only as needed.
+
+#### Web3 Chains
+- **Ethereum (EVM)**: ethers.js, web3.py
+- **Solana**: @solana/web3.js, Anchor framework
+- **Extension Points**: Additional chains can be added via the SDK config pattern (see `sdk/README.md`)
+
+#### Messaging
+- **Slack**: Slack Web API SDK
+- **Discord**: Discord.js / discord.py
+
+#### Data Storage
+- **PostgreSQL**: pg (Node), asyncpg (Python)
+- **Redis**: In-memory data store
+- **S3**: AWS object storage
+- **IPFS**: Decentralized file storage
+
+### Enabling Providers
+
+#### Node.js
+```javascript
+const { AITimesMachinesSDK } = require('@lippytm/ai-sdk');
+
+const sdk = new AITimesMachinesSDK({
+  ai: { provider: 'openai', apiKey: process.env.OPENAI_API_KEY },
+  vectorStore: { provider: 'pinecone', apiKey: process.env.PINECONE_API_KEY },
+  web3: { chain: 'ethereum', rpcUrl: process.env.ETH_RPC_URL },
+  messaging: { provider: 'slack', token: process.env.SLACK_TOKEN },
+  dataStorage: { type: 'postgres', connectionString: process.env.DATABASE_URL }
+});
+```
+
+#### Python
+```python
+from lippytm_ai_sdk import AITimesMachinesSDK
+
+sdk = AITimesMachinesSDK({
+    'ai': {'provider': 'openai', 'api_key': os.getenv('OPENAI_API_KEY')},
+    'vector_store': {'provider': 'pinecone', 'api_key': os.getenv('PINECONE_API_KEY')},
+    'web3': {'chain': 'ethereum', 'rpc_url': os.getenv('ETH_RPC_URL')},
+    'messaging': {'provider': 'slack', 'token': os.getenv('SLACK_TOKEN')},
+    'data_storage': {'type': 'postgres', 'connection_string': os.getenv('DATABASE_URL')}
+})
+```
+
+**Note**: The SDK packages are local adapters in this repository. To use them:
+- Node: Import from `./sdk/node`
+- Python: Install from `./sdk/python` with `pip install -e ./sdk/python`
+- Go: Import as `github.com/lippytm/ai-time-machines/sdk/go/aisdk`
+- Rust: Add as path dependency in Cargo.toml
+
+See `sdk/README.md` for Go and Rust examples.
+
+### Required Environment Variables
+
+Add these to your `.env` file as needed:
+
+```bash
+# AI Providers
+OPENAI_API_KEY=sk-...                    # OpenAI API key
+HUGGINGFACE_API_KEY=hf_...              # Hugging Face API key
+
+# Vector Stores
+PINECONE_API_KEY=...                     # Pinecone API key
+PINECONE_ENV=...                         # Pinecone environment
+WEAVIATE_URL=...                         # Weaviate instance URL
+WEAVIATE_API_KEY=...                     # Weaviate API key (if applicable)
+
+# Web3
+ETH_RPC_URL=https://...                  # Ethereum RPC endpoint
+SOLANA_RPC_URL=https://...               # Solana RPC endpoint
+WEB3_PRIVATE_KEY=0x...                   # Private key (use secure key management)
+
+# Messaging
+SLACK_TOKEN=xoxb-...                     # Slack bot token
+DISCORD_TOKEN=...                        # Discord bot token
+
+# Data Storage
+DATABASE_URL=postgresql://...            # PostgreSQL connection
+REDIS_URL=redis://...                    # Redis connection
+AWS_ACCESS_KEY_ID=...                    # AWS credentials for S3
+AWS_SECRET_ACCESS_KEY=...                # AWS credentials for S3
+S3_BUCKET=...                            # S3 bucket name
+IPFS_URL=...                             # IPFS gateway URL
+```
+
+### Installing Optional Dependencies
+
+Dependencies are marked as optional. Install only what you need:
+
+**Node.js:**
+```bash
+npm install openai @pinecone-database/pinecone ethers @slack/web-api
+```
+
+**Python:**
+```bash
+pip install "lippytm-ai-sdk[ai,vector,web3]"  # Install specific bundles
+# or
+pip install openai pinecone-client web3 slack-sdk
+```
+
+### Linux Compatibility Notes
+
+- All dependencies are Linux-compatible
+- TensorFlow/PyTorch may require specific CPU/GPU builds for optimal performance
+- Vector stores like Chroma may have native dependencies; ensure build tools are installed:
+  ```bash
+  sudo apt-get install build-essential python3-dev
+  ```
+- For GPU support, install CUDA toolkit as per TensorFlow/PyTorch documentation
+
+### Container Deployment
+
+Container images are automatically built and pushed to GitHub Container Registry (ghcr.io) on pushes to `main` or via manual workflow dispatch:
+
+```bash
+# Pull and run container images
+docker pull ghcr.io/lippytm/ai-time-machines/backend:dev-latest
+docker pull ghcr.io/lippytm/ai-time-machines/frontend:dev-latest
+docker pull ghcr.io/lippytm/ai-time-machines/python-service:dev-latest
+
+# Run with environment variables
+docker run -e OPENAI_API_KEY=... -e DATABASE_URL=... ghcr.io/lippytm/ai-time-machines/backend:dev-latest
+```
+
+See `.github/workflows/deploy.yml` for deployment configuration and environment matrix (dev/stage/prod).
+
+## 📚 Resources
+
 
 - [ ] Advanced visualization with Chart.js/D3.js
 - [ ] Real-time predictions with WebSockets
