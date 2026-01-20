@@ -1,0 +1,118 @@
+name: Deploy Container Images
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        type: choice
+        options:
+          - dev
+          - stage
+          - prod
+        default: 'dev'
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ${{ github.repository }}
+
+jobs:
+  build-and-push:
+    name: Build and Push Container Images
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [backend, frontend, python-service]
+        include:
+          - service: backend
+            dockerfile: ./backend/Dockerfile
+            context: ./backend
+          - service: frontend
+            dockerfile: ./frontend/Dockerfile
+            context: ./frontend
+          - service: python-service
+            dockerfile: ./python-service/Dockerfile
+            context: ./python-service
+    
+    permissions:
+      contents: read
+      packages: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set environment
+        id: set-env
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "DEPLOY_ENV=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+          else
+            echo "DEPLOY_ENV=dev" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+            type=raw,value=${{ steps.set-env.outputs.DEPLOY_ENV }}-latest
+            type=raw,value=${{ steps.set-env.outputs.DEPLOY_ENV }}-{{sha}}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:buildcache,mode=max
+          build-args: |
+            BUILD_ENV=${{ steps.set-env.outputs.DEPLOY_ENV }}
+
+  deploy-notification:
+    name: Deployment Notification
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: Report deployment status
+        run: |
+          echo "Deployment Status: ${{ needs.build-and-push.result }}"
+          echo "Environment: ${{ needs.build-and-push.outputs.DEPLOY_ENV || 'dev' }}"
+          echo "Registry: ${{ env.REGISTRY }}"
+          echo "Images pushed:"
+          echo "  - ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/backend"
+          echo "  - ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/frontend"
+          echo "  - ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/python-service"
+          echo ""
+          echo "Required environment variables for deployment:"
+          echo "  AI_API_KEY - OpenAI or Hugging Face API key"
+          echo "  VECTOR_STORE_API_KEY - Pinecone/Weaviate/Chroma API key"
+          echo "  WEB3_RPC_URL - Ethereum/Solana RPC endpoint"
+          echo "  MESSAGING_TOKEN - Slack/Discord bot token"
+          echo "  DATABASE_URL - PostgreSQL connection string"
+          echo "  REDIS_URL - Redis connection string"
+          echo "  AWS_ACCESS_KEY_ID - AWS credentials for S3"
+          echo "  AWS_SECRET_ACCESS_KEY - AWS credentials for S3"
+          echo ""
+          echo "See README for complete environment variable reference."

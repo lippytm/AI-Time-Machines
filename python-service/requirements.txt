@@ -18,3 +18,28 @@ prophet==1.1.5
 # Utilities
 joblib==1.3.2
 matplotlib==3.8.2
+
+# AI Stack (optional - install as needed)
+# openai>=1.6.0
+# transformers>=4.36.0
+# huggingface-hub>=0.20.0
+# langchain>=0.1.0
+# llama-index>=0.9.0
+# pinecone-client>=3.0.0
+# weaviate-client>=3.25.0
+# chromadb>=0.4.0
+
+# Web3 Stack (optional - install as needed)
+# web3>=6.13.0
+# solana>=0.30.0
+# eth-account>=0.10.0
+
+# Messaging (optional)
+# slack-sdk>=3.26.0
+# discord.py>=2.3.0
+
+# Data (optional)
+# asyncpg>=0.29.0
+# redis>=5.0.0
+# boto3>=1.34.0
+# ipfshttpclient>=0.8.0
