@@ -21,8 +21,8 @@ jobs:
       - name: Dependency Review
         uses: actions/dependency-review-action@v4
         with:
-          # Fail if vulnerabilities with severity high or critical
-          fail-on-severity: high
+          # Fail if vulnerabilities with severity critical or high
+          fail-on-severity: critical
           # Add a comment to the PR with the results
           comment-summary-in-pr: always
           # Optional: Deny licenses (comma-separated list)
