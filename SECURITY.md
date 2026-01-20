@@ -17,9 +17,9 @@ We take security vulnerabilities seriously. If you discover a security vulnerabi
 
 **Please do NOT report security vulnerabilities through public GitHub issues.**
 
-Instead, please report vulnerabilities by email to:
-- **Security Team**: [security@example.com](mailto:security@example.com) *(Configure with actual email)*
-- **Maintainer**: [@lippytm](https://github.com/lippytm)
+Instead, please report vulnerabilities by:
+- Opening a [private security advisory](https://github.com/lippytm/AI-Time-Machines/security/advisories/new)
+- Contacting the maintainer: [@lippytm](https://github.com/lippytm)
 
 Please include the following information in your report:
 - Type of vulnerability
@@ -157,8 +157,8 @@ Security advisories will be published at:
 ## Contact
 
 For security-related questions or concerns:
-- Email: security@example.com *(Configure with actual email)*
-- GitHub: [@lippytm](https://github.com/lippytm)
+- GitHub Security Advisories: https://github.com/lippytm/AI-Time-Machines/security/advisories
+- Maintainer: [@lippytm](https://github.com/lippytm)
 
 ## Acknowledgments
 

@@ -22,14 +22,10 @@ permissions:
 
 jobs:
   deploy:
-    name: Deploy to ${{ matrix.environment }}
+    name: Deploy to ${{ inputs.environment || 'dev' }}
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        environment:
-          - ${{ github.event.inputs.environment || 'dev' }}
     environment:
-      name: ${{ matrix.environment }}
+      name: ${{ inputs.environment || 'dev' }}
       url: ${{ steps.deploy.outputs.url }}
 
     steps:
@@ -39,7 +35,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Configure AWS credentials (OIDC)
@@ -83,7 +79,7 @@ jobs:
       - name: Load environment variables
         run: |
           echo "Loading environment-specific variables"
-          echo "Environment: ${{ matrix.environment }}"
+          echo "Environment: ${{ inputs.environment || 'dev' }}"
           # Required secrets/variables
           # (configure in GitHub Secrets/Variables):
           # - WEB3_RPC_URL: ${{ secrets.WEB3_RPC_URL }}
@@ -109,16 +105,16 @@ jobs:
       - name: Run database migrations
         run: |
           echo "Running database migrations"
-          echo "Environment: ${{ matrix.environment }}"
+          echo "Environment: ${{ inputs.environment || 'dev' }}"
           # Uncomment when DB_URL is configured
           # npm run db:migrate
         env:
           DB_URL: ${{ secrets.DB_URL }}
 
-      - name: Deploy to ${{ matrix.environment }}
+      - name: Deploy to ${{ inputs.environment || 'dev' }}
         id: deploy
         run: |
-          echo "Deploying to ${{ matrix.environment }} environment"
+          echo "Deploying to ${{ inputs.environment || 'dev' }} environment"
           echo "This is a deployment placeholder"
           echo "Implement your deployment strategy here"
           echo "Examples:"
@@ -127,36 +123,33 @@ jobs:
           echo "  - Deploy to GCP: gcloud app deploy ..."
           echo "  - Deploy with Docker: docker push ..."
           echo "  - Deploy to Kubernetes: kubectl apply ..."
-          echo "url=https://${{ matrix.environment }}.example.com" \
+          echo "url=https://${{ inputs.environment || 'dev' }}.example.com" \
             >> $GITHUB_OUTPUT
 
       - name: Verify deployment
         run: |
-          echo "Verifying deployment to ${{ matrix.environment }}"
+          echo "Verifying deployment to ${{ inputs.environment || 'dev' }}"
           # Add health check or smoke tests here
           # Example:
-          # curl -f https://${{ matrix.environment }}.example.com/health
+          # ENV=${{ inputs.environment || 'dev' }}
+          # curl -f https://${ENV}.example.com/health
 
       - name: Notify deployment status
         if: always()
         run: |
           echo "Deployment completed with status: ${{ job.status }}"
-          echo "Environment: ${{ matrix.environment }}"
+          echo "Environment: ${{ inputs.environment || 'dev' }}"
           # Uncomment to send notifications
           # - Slack: Use SLACK_BOT_TOKEN
           # - Discord: Use DISCORD_BOT_TOKEN
           # - Email: Configure email notifications
 
   deploy-python-service:
-    name: Deploy Python Service to ${{ matrix.environment }}
+    name: Deploy Python Service to ${{ inputs.environment || 'dev' }}
     runs-on: ubuntu-latest
     needs: deploy
-    strategy:
-      matrix:
-        environment:
-          - ${{ github.event.inputs.environment || 'dev' }}
     environment:
-      name: ${{ matrix.environment }}
+      name: ${{ inputs.environment || 'dev' }}"
 
     steps:
       - name: Checkout repository
@@ -178,7 +171,7 @@ jobs:
       - name: Deploy Python service
         run: |
           echo "Deploying Python service"
-          echo "Environment: ${{ matrix.environment }}"
+          echo "Environment: ${{ inputs.environment || 'dev' }}"
           echo "This is a deployment placeholder"
           echo "Implement your deployment strategy here"
           # Examples:

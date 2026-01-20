@@ -180,7 +180,7 @@ black --check .
 
 # Auto-fix linting issues
 npm run lint:fix  # if configured
-black .           # for Python formatting
+cd python-service && black .  # for Python formatting
 ```
 
 ### Branch Protection Rules
