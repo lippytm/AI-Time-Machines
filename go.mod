@@ -2,12 +2,6 @@ module github.com/lippytm/ai-time-machines/go-service
 
 go 1.21
 
-// Core dependencies - install when needed
-require (
-	github.com/joho/godotenv v1.5.1
-	github.com/lib/pq v1.10.9
-)
-
 // Optional AI/Web3 dependencies - uncomment to enable
 // AI Stack
 // github.com/sashabaranov/go-openai v1.17.9

@@ -17,7 +17,7 @@ setup(
     extras_require={
         'ai': [
             'openai>=1.6.0',
-            'transformers>=4.36.0',
+            'transformers>=4.48.0',
             'huggingface-hub>=0.20.0',
             'langchain>=0.1.0',
             'llama-index>=0.9.0',
@@ -44,7 +44,7 @@ setup(
         ],
         'all': [
             'openai>=1.6.0',
-            'transformers>=4.36.0',
+            'transformers>=4.48.0',
             'huggingface-hub>=0.20.0',
             'langchain>=0.1.0',
             'llama-index>=0.9.0',
