@@ -122,17 +122,41 @@ class AITimesMachinesSDK {
   }
 
   validateAll() {
+    const errors = [];
     try {
       this.ai.validate();
-      this.vectorStore.validate();
-      this.web3.validate();
-      this.messaging.validate();
-      this.dataStorage.validate();
-      return true;
     } catch (error) {
-      console.warn('SDK validation warning:', error.message);
+      errors.push(`AI: ${error.message}`);
+    }
+    try {
+      this.vectorStore.validate();
+    } catch (error) {
+      errors.push(`VectorStore: ${error.message}`);
+    }
+    try {
+      this.web3.validate();
+    } catch (error) {
+      errors.push(`Web3: ${error.message}`);
+    }
+    try {
+      this.messaging.validate();
+    } catch (error) {
+      errors.push(`Messaging: ${error.message}`);
+    }
+    try {
+      this.dataStorage.validate();
+    } catch (error) {
+      errors.push(`DataStorage: ${error.message}`);
+    }
+    
+    if (errors.length > 0) {
+      // Only log to console in non-production environments
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn('SDK validation warnings:', errors.join(', '));
+      }
       return false;
     }
+    return true;
   }
 
   // TODO: Add provider initialization methods

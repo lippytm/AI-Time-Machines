@@ -125,16 +125,35 @@ class AITimesMachinesSDK:
         self.data_storage = DataStorageConfig(config.get('data_storage'))
     
     def validate_all(self) -> bool:
+        errors = []
         try:
             self.ai.validate()
-            self.vector_store.validate()
-            self.web3.validate()
-            self.messaging.validate()
-            self.data_storage.validate()
-            return True
         except ValueError as error:
-            print(f'SDK validation warning: {error}')
+            errors.append(f'AI: {error}')
+        try:
+            self.vector_store.validate()
+        except ValueError as error:
+            errors.append(f'VectorStore: {error}')
+        try:
+            self.web3.validate()
+        except ValueError as error:
+            errors.append(f'Web3: {error}')
+        try:
+            self.messaging.validate()
+        except ValueError as error:
+            errors.append(f'Messaging: {error}')
+        try:
+            self.data_storage.validate()
+        except ValueError as error:
+            errors.append(f'DataStorage: {error}')
+        
+        if errors:
+            # Only log in non-production environments
+            import os
+            if os.getenv('ENVIRONMENT') != 'production':
+                print(f'SDK validation warnings: {", ".join(errors)}')
             return False
+        return True
     
     # TODO: Add provider initialization methods
     # TODO: Add connection pooling

@@ -394,6 +394,12 @@ sdk = AITimesMachinesSDK({
 })
 ```
 
+**Note**: The SDK packages are local adapters in this repository. To use them:
+- Node: Import from `./sdk/node`
+- Python: Install from `./sdk/python` with `pip install -e ./sdk/python`
+- Go: Import as `github.com/lippytm/ai-time-machines/sdk/go/aisdk`
+- Rust: Add as path dependency in Cargo.toml
+
 See `sdk/README.md` for Go and Rust examples.
 
 ### Required Environment Variables

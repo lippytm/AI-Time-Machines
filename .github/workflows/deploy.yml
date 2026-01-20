@@ -95,10 +95,19 @@ jobs:
     if: always()
     
     steps:
+      - name: Set environment
+        id: set-env
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "DEPLOY_ENV=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+          else
+            echo "DEPLOY_ENV=dev" >> $GITHUB_OUTPUT
+          fi
+
       - name: Report deployment status
         run: |
           echo "Deployment Status: ${{ needs.build-and-push.result }}"
-          echo "Environment: ${{ needs.build-and-push.outputs.DEPLOY_ENV || 'dev' }}"
+          echo "Environment: ${{ steps.set-env.outputs.DEPLOY_ENV }}"
           echo "Registry: ${{ env.REGISTRY }}"
           echo "Images pushed:"
           echo "  - ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/backend"
