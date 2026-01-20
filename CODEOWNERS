@@ -1,0 +1,30 @@
+# CODEOWNERS file for AI-Time-Machines
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owner for everything in the repo
+# This user will be requested for review when someone opens a pull request
+*       @lippytm
+
+# GitHub Actions workflows
+/.github/workflows/    @lippytm
+
+# Security and policy files
+/SECURITY.md          @lippytm
+/CONTRIBUTING.md      @lippytm
+/LICENSE              @lippytm
+
+# Backend
+/backend/             @lippytm
+
+# Frontend
+/frontend/            @lippytm
+
+# Python ML Service
+/python-service/      @lippytm
+
+# Infrastructure
+/docker-compose.yml   @lippytm
+/.env.example         @lippytm
+
+# Documentation
+*.md                  @lippytm

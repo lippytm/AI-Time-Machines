@@ -1,5 +1,10 @@
 # AI-Time-Machines
 
+[![Lint and Test](https://github.com/lippytm/AI-Time-Machines/actions/workflows/lint-test.yml/badge.svg)](https://github.com/lippytm/AI-Time-Machines/actions/workflows/lint-test.yml)
+[![CodeQL](https://github.com/lippytm/AI-Time-Machines/actions/workflows/codeql.yml/badge.svg)](https://github.com/lippytm/AI-Time-Machines/actions/workflows/codeql.yml)
+[![Continuous Integration](https://github.com/lippytm/AI-Time-Machines/actions/workflows/ci.yml/badge.svg)](https://github.com/lippytm/AI-Time-Machines/actions/workflows/ci.yml)
+[![Deploy](https://github.com/lippytm/AI-Time-Machines/actions/workflows/deploy.yml/badge.svg)](https://github.com/lippytm/AI-Time-Machines/actions/workflows/deploy.yml)
+
 **Full Stack AI Platform for Time-Series Agent Creation and Management**
 
 AI-Time-Machines is a comprehensive Full Stack platform that combines React, Node.js, Python ML services, and PostgreSQL to create and manage time-series AI agents with advanced forecasting capabilities.
@@ -279,6 +284,10 @@ docker-compose up -d --build
 - ✅ Input validation with express-validator
 - ✅ SQL injection protection (Sequelize ORM)
 - ✅ Regular security scanning (Trivy)
+- ✅ CodeQL security analysis
+- ✅ Dependency vulnerability review
+
+**Security Issues**: Please see [SECURITY.md](SECURITY.md) for information on reporting security vulnerabilities.
 
 ## 🚦 CI/CD Pipeline
 
