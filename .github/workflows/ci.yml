@@ -11,32 +11,33 @@ jobs:
     name: Detect Changes
     runs-on: ubuntu-latest
     outputs:
-      node: ${{ steps.filter.outputs.node }}
-      python: ${{ steps.filter.outputs.python }}
-      docker: ${{ steps.filter.outputs.docker }}
+      node: ${{ steps.check.outputs.node }}
+      python: ${{ steps.check.outputs.python }}
+      docker: ${{ steps.check.outputs.docker }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
       
-      - name: Detect file changes
-        uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            node:
-              - 'package.json'
-              - 'package-lock.json'
-              - '**/package.json'
-              - '**/package-lock.json'
-            python:
-              - 'pyproject.toml'
-              - '**/pyproject.toml'
-              - 'requirements*.txt'
-              - '**/requirements*.txt'
-            docker:
-              - 'Dockerfile'
-              - '**/Dockerfile'
-              - 'docker-compose.yml'
+      - name: Check ecosystem files
+        id: check
+        run: |
+          if [ -f "package.json" ] || [ -f "backend/package.json" ] || [ -f "frontend/package.json" ]; then
+            echo "node=true" >> $GITHUB_OUTPUT
+          else
+            echo "node=false" >> $GITHUB_OUTPUT
+          fi
+          
+          if [ -f "pyproject.toml" ] || [ -f "requirements.txt" ] || [ -f "python-service/requirements.txt" ]; then
+            echo "python=true" >> $GITHUB_OUTPUT
+          else
+            echo "python=false" >> $GITHUB_OUTPUT
+          fi
+          
+          if [ -f "Dockerfile" ] || [ -f "backend/Dockerfile" ] || [ -f "frontend/Dockerfile" ] || [ -f "python-service/Dockerfile" ]; then
+            echo "docker=true" >> $GITHUB_OUTPUT
+          else
+            echo "docker=false" >> $GITHUB_OUTPUT
+          fi
 
   node-ci:
     name: Node.js CI
