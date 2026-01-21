@@ -10,6 +10,8 @@ jobs:
   detect-changes:
     name: Detect Changes
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
       node: ${{ steps.check.outputs.node }}
       python: ${{ steps.check.outputs.python }}
@@ -44,6 +46,8 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.node == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     
     steps:
       - name: Checkout repository
@@ -80,6 +84,8 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.python == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     
     steps:
       - name: Checkout repository
@@ -121,6 +127,8 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.docker == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     
     steps:
       - name: Checkout repository
@@ -148,6 +156,9 @@ jobs:
     name: Dependency Review
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pull-requests: write
     
     steps:
       - name: Checkout repository
