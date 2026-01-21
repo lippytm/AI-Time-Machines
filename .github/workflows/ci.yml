@@ -54,6 +54,10 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
+          cache-dependency-path: |
+            package-lock.json
+            backend/package-lock.json
+            frontend/package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -93,7 +97,8 @@ jobs:
         run: |
           if [ -f requirements.txt ]; then
             pip install -r requirements.txt
-          elif [ -f python-service/requirements.txt ]; then
+          fi
+          if [ -f python-service/requirements.txt ]; then
             pip install -r python-service/requirements.txt
           fi
           pip install ruff mypy pytest
@@ -108,7 +113,7 @@ jobs:
         continue-on-error: true
 
       - name: Run pytest
-        run: pytest || echo "No tests found or tests failed"
+        run: pytest
         continue-on-error: true
 
   docker-ci:
