@@ -278,16 +278,38 @@ docker-compose up -d --build
 - ✅ Helmet.js security headers
 - ✅ Input validation with express-validator
 - ✅ SQL injection protection (Sequelize ORM)
-- ✅ Regular security scanning (Trivy)
+- ✅ CodeQL security scanning
+- ✅ Dependabot vulnerability alerts
+- ✅ Automated dependency updates
 
 ## 🚦 CI/CD Pipeline
 
-The project includes GitHub Actions workflows for:
-- Code quality and security scanning
-- Dependency review
-- Backend and frontend testing
-- Docker image builds
-- Documentation validation
+The project includes comprehensive GitHub Actions workflows:
+
+### Continuous Integration
+- **Conditional Ecosystem Detection**: Uses [dorny/paths-filter](https://github.com/dorny/paths-filter) to detect changes and run relevant checks
+- **Node.js CI**: Runs linting, testing, and builds when JavaScript/TypeScript files change
+- **Python CI**: Runs ruff, mypy, and pytest when Python files change
+- **Docker CI**: Builds Docker images when Dockerfiles change
+- **Dependency Review**: Automatically reviews dependencies on pull requests
+
+### Automated Releases
+- **Release Please**: Automatically generates CHANGELOGs, version bumps, and GitHub Releases based on [Conventional Commits](https://www.conventionalcommits.org/)
+- Triggered on pushes to `main` branch
+- Creates release PRs that, when merged, publish new versions
+- See [CONTRIBUTING.md](CONTRIBUTING.md) for commit message guidelines
+
+### Security Scanning
+- **CodeQL Analysis**: Continuous security scanning for JavaScript/TypeScript and Python
+- Runs on every push and pull request
+- Weekly scheduled scans
+- Results available in the Security tab
+
+### Dependency Management
+- **Dependabot**: Automated dependency updates for npm, pip, and GitHub Actions
+- Weekly update checks
+- Grouped minor and patch updates to reduce PR noise
+- Configured for root, backend, frontend, and python-service directories
 
 ## 🤝 Contributing
 
