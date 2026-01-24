@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import TimeSeries from './pages/TimeSeries';
 import Models from './pages/Models';
 import Predictions from './pages/Predictions';
+import AITools from './pages/AITools';
 import Layout from './components/Layout';
 import './App.css';
 
@@ -49,6 +50,7 @@ function AppRoutes() {
         <Route path="timeseries" element={<TimeSeries />} />
         <Route path="models" element={<Models />} />
         <Route path="predictions" element={<Predictions />} />
+        <Route path="aitools" element={<AITools />} />
       </Route>
     </Routes>
   );

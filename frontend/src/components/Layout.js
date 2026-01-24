@@ -43,6 +43,12 @@ const Layout = () => {
                 >
                   Predictions
                 </Link>
+                <Link
+                  to="/aitools"
+                  className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/aitools')}`}
+                >
+                  AI Tools
+                </Link>
               </div>
             </div>
             
