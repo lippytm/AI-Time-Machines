@@ -13,6 +13,7 @@ AI-Time-Machines is a comprehensive Full Stack platform that combines React, Nod
 - 📈 Time-series data upload and management
 - 🤖 AI model training interface
 - 🔮 Predictions visualization
+- 🛠️ AI tools and toolkits management
 
 ### Backend (Node.js + Express)
 - ⚡ RESTful API with Express.js
@@ -23,6 +24,7 @@ AI-Time-Machines is a comprehensive Full Stack platform that combines React, Nod
   - Time-series data operations
   - AI model training workflows
   - Prediction generation
+  - AI tools and toolkits catalog
 
 ### AI/ML Service (Python + TensorFlow)
 - 🧠 Time-series forecasting models:
@@ -174,6 +176,13 @@ python app.py
 - Set prediction horizon (1-100 steps)
 - View predicted values and confidence intervals
 
+### 5. Manage AI Tools & Toolkits
+- Navigate to "AI Tools" section
+- Click "+ Add AI Tool" to add a new tool
+- Fill in tool details (name, category, type, URLs, etc.)
+- Filter tools by category or type
+- View and manage your AI tools catalog
+
 ## 🏗️ Architecture
 
 ```
@@ -229,6 +238,16 @@ AI-Time-Machines/
 - `GET /api/predictions` - List all predictions
 - `POST /api/predictions` - Generate prediction
 - `GET /api/predictions/:id` - Get prediction
+- `DELETE /api/predictions/:id` - Delete prediction
+
+### AI Tools
+- `GET /api/aitools` - List all AI tools
+- `GET /api/aitools/categories` - Get available categories
+- `GET /api/aitools/types` - Get available tool types
+- `POST /api/aitools` - Create AI tool
+- `GET /api/aitools/:id` - Get AI tool
+- `PUT /api/aitools/:id` - Update AI tool
+- `DELETE /api/aitools/:id` - Delete AI tool
 - `DELETE /api/predictions/:id` - Delete prediction
 
 ## 🧪 Testing
