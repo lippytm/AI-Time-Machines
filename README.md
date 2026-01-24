@@ -248,7 +248,6 @@ AI-Time-Machines/
 - `GET /api/aitools/:id` - Get AI tool
 - `PUT /api/aitools/:id` - Update AI tool
 - `DELETE /api/aitools/:id` - Delete AI tool
-- `DELETE /api/predictions/:id` - Delete prediction
 
 ## 🧪 Testing
 
