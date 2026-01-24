@@ -282,12 +282,52 @@ docker-compose up -d --build
 
 ## 🚦 CI/CD Pipeline
 
-The project includes GitHub Actions workflows for:
-- Code quality and security scanning
-- Dependency review
-- Backend and frontend testing
-- Docker image builds
-- Documentation validation
+The project includes comprehensive GitHub Actions workflows for:
+
+### Continuous Integration (CI)
+- **Ecosystem Detection**: Automatically detects Node.js, Python, and Docker changes using `dorny/paths-filter`
+- **Node.js CI**: 
+  - Linting with ESLint
+  - Unit and integration tests
+  - Build verification
+  - npm dependency caching
+- **Python CI**:
+  - Code quality checks with `ruff`
+  - Type checking with `mypy`
+  - Unit tests with `pytest`
+  - pip dependency caching
+- **Docker CI**: Validates all Dockerfile builds
+- **Code Quality**: Trivy security scanning
+- **Dependency Review**: Automated dependency security checks on PRs
+
+### Automated Releases
+- **Release Please**: Automated changelog generation and releases
+  - Uses Conventional Commits to determine version bumps
+  - Automatically creates GitHub Releases
+  - Generates CHANGELOG.md
+  - To trigger a release, merge PRs with conventional commit messages to `main`
+
+### Security
+- **CodeQL Analysis**: Weekly security scans for JavaScript/TypeScript and Python
+- **Dependabot**: Weekly automated dependency updates for:
+  - npm packages (root, backend, frontend)
+  - Python packages (python-service)
+  - GitHub Actions
+
+### How to Use Release Please
+1. Use conventional commit messages in your PRs (recommended but optional):
+   ```
+   feat: add new forecasting model
+   fix: resolve API timeout issue
+   docs: update installation guide
+   ```
+2. Merge PRs to `main`
+3. Release Please will automatically:
+   - Create a release PR with updated CHANGELOG
+   - Determine the next version number
+   - When the release PR is merged, create a GitHub Release with tag
+
+For more details on contributing, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## 🤝 Contributing
 

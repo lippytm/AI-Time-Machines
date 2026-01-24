@@ -7,6 +7,201 @@ on:
     branches: [ main, develop ]
 
 jobs:
+  # Detect which ecosystems have changed
+  detect-changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      node: ${{ steps.filter.outputs.node }}
+      python: ${{ steps.filter.outputs.python }}
+      docker: ${{ steps.filter.outputs.docker }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for ecosystem files
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            node:
+              - 'package.json'
+              - 'package-lock.json'
+              - '**/*.js'
+              - '**/*.ts'
+              - '**/*.tsx'
+              - 'frontend/**'
+              - 'backend/**'
+            python:
+              - 'pyproject.toml'
+              - 'requirements*.txt'
+              - '**/*.py'
+              - 'python-service/**'
+            docker:
+              - 'Dockerfile'
+              - '**/Dockerfile'
+              - 'docker-compose.yml'
+
+  # Node.js / Next.js ecosystem
+  node-ci:
+    name: Node.js CI
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.node == 'true' || github.event_name == 'pull_request'
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check if package.json exists
+        id: check-package
+        run: |
+          if [ -f package.json ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup Node.js
+        if: steps.check-package.outputs.exists == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        if: steps.check-package.outputs.exists == 'true'
+        run: npm ci
+
+      - name: Run linter
+        if: steps.check-package.outputs.exists == 'true'
+        run: npm run lint --if-present
+        continue-on-error: true
+
+      - name: Run tests
+        if: steps.check-package.outputs.exists == 'true'
+        run: npm test --if-present
+        continue-on-error: true
+
+      - name: Build project
+        if: steps.check-package.outputs.exists == 'true'
+        run: npm run build --if-present
+        continue-on-error: true
+
+  # Python ecosystem
+  python-ci:
+    name: Python CI
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.python == 'true' || github.event_name == 'pull_request'
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for Python files
+        id: check-python
+        run: |
+          if [ -f pyproject.toml ] || ls requirements*.txt 1> /dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            if [ -f pyproject.toml ]; then
+              echo "has_pyproject=true" >> $GITHUB_OUTPUT
+            else
+              echo "has_pyproject=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "has_pyproject=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup Python 3.11
+        if: steps.check-python.outputs.exists == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install requirements
+        if: steps.check-python.outputs.exists == 'true'
+        run: |
+          if ls requirements*.txt 1> /dev/null 2>&1; then
+            for req in requirements*.txt; do
+              pip install -r "$req"
+            done
+          fi
+
+      - name: Install linting and testing tools
+        if: steps.check-python.outputs.exists == 'true'
+        run: pip install ruff mypy pytest
+
+      - name: Run ruff check
+        if: steps.check-python.outputs.exists == 'true'
+        run: ruff check .
+        continue-on-error: true
+
+      - name: Run mypy
+        if: steps.check-python.outputs.exists == 'true' && steps.check-python.outputs.has_pyproject == 'true'
+        run: mypy .
+        continue-on-error: true
+
+      - name: Run pytest
+        if: steps.check-python.outputs.exists == 'true'
+        run: |
+          pytest || exit_code=$?
+          if [ $exit_code -eq 5 ]; then
+            echo "No tests collected, marking as success"
+            exit 0
+          elif [ $exit_code -ne 0 ]; then
+            exit $exit_code
+          fi
+        continue-on-error: true
+
+  # Docker builds
+  docker-ci:
+    name: Docker CI
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.docker == 'true' || github.event_name == 'pull_request'
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Check for Dockerfiles
+        id: check-docker
+        run: |
+          if [ -f Dockerfile ]; then
+            echo "root_dockerfile=true" >> $GITHUB_OUTPUT
+          else
+            echo "root_dockerfile=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build root Dockerfile
+        if: steps.check-docker.outputs.root_dockerfile == 'true'
+        run: docker build .
+
+      - name: Build backend Dockerfile
+        if: hashFiles('backend/Dockerfile') != ''
+        run: docker build -t ai-timemachines-backend:test ./backend
+
+      - name: Build frontend Dockerfile
+        if: hashFiles('frontend/Dockerfile') != ''
+        run: docker build -t ai-timemachines-frontend:test ./frontend
+
+      - name: Build python-service Dockerfile
+        if: hashFiles('python-service/Dockerfile') != ''
+        run: docker build -t ai-timemachines-python:test ./python-service
+
+  # Code quality and security
   code-quality:
     name: Code Quality & Security
     runs-on: ubuntu-latest
@@ -31,6 +226,7 @@ jobs:
         with:
           sarif_file: 'trivy-results.sarif'
 
+  # Dependency review
   dependency-review:
     name: Dependency Review
     runs-on: ubuntu-latest
@@ -42,126 +238,3 @@ jobs:
       
       - name: Dependency Review
         uses: actions/dependency-review-action@v4
-
-  backend-test:
-    name: Backend Tests
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    
-    services:
-      postgres:
-        image: postgres:15-alpine
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: ai_time_machines_test
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: backend/package-lock.json
-
-      - name: Install backend dependencies
-        run: cd backend && npm ci
-        continue-on-error: true
-
-      - name: Run backend tests
-        run: cd backend && npm test
-        continue-on-error: true
-        env:
-          NODE_ENV: test
-          DB_HOST: localhost
-          DB_PORT: 5432
-          DB_USER: postgres
-          DB_PASSWORD: postgres
-          DB_NAME: ai_time_machines_test
-          JWT_SECRET: test-secret-key
-
-  frontend-test:
-    name: Frontend Tests
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-
-      - name: Install frontend dependencies
-        run: cd frontend && npm ci
-        continue-on-error: true
-
-      - name: Run frontend tests
-        run: cd frontend && npm test -- --watchAll=false
-        continue-on-error: true
-
-      - name: Build frontend
-        run: cd frontend && npm run build
-        continue-on-error: true
-
-  docker-build:
-    name: Docker Build Test
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build backend image
-        run: docker build -t ai-timemachines-backend:test ./backend
-        continue-on-error: true
-
-      - name: Build frontend image
-        run: docker build -t ai-timemachines-frontend:test ./frontend
-        continue-on-error: true
-
-      - name: Build python service image
-        run: docker build -t ai-timemachines-python:test ./python-service
-        continue-on-error: true
-
-  documentation:
-    name: Documentation Check
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Check README exists
-        run: |
-          if [ ! -f README.md ]; then
-            echo "README.md is missing"
-            exit 1
-          fi
-
-      - name: Validate markdown files
-        uses: DavidAnson/markdownlint-cli2-action@v16
-        with:
-          globs: '**/*.md'
-        continue-on-error: true

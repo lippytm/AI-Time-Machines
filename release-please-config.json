@@ -1,0 +1,8 @@
+{
+  "manifest": true,
+  "packages": {
+    ".": {
+      "release-type": "simple"
+    }
+  }
+}

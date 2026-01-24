@@ -29,12 +29,45 @@ Feature suggestions are welcome! Please:
 
 1. Fork the repository
 2. Clone your fork: `git clone https://github.com/your-username/AI-Time-Machines.git`
-3. Create a feature branch: `git checkout -b feature/your-feature-name`
+3. Create a feature branch from `main`: `git checkout -b feature/your-feature-name`
 4. Make your changes
-5. Test your changes
-6. Commit your changes: `git commit -m "Add your commit message"`
+5. Test your changes (see "Running Tests" below)
+6. Commit your changes (see "Commit Messages" below)
 7. Push to your fork: `git push origin feature/your-feature-name`
-8. Create a Pull Request
+8. Create a Pull Request to the `main` branch
+
+#### Branch and PR Process
+
+- **Base branch**: All PRs should target the `main` branch
+- **Branch naming**: Use descriptive names like `feature/add-model-export`, `fix/api-timeout`, `docs/update-readme`
+- **Keep PRs focused**: One feature or fix per PR
+- **Stay up to date**: Regularly sync your fork with upstream `main`
+- **CI must pass**: All automated checks must pass before merging
+
+#### Commit Messages
+
+We use **Conventional Commits** for better release automation. While optional, this is **strongly recommended** as it enables automatic changelog generation and semantic versioning through Release Please.
+
+Format: `type(scope): description`
+
+**Types:**
+- `feat`: New feature
+- `fix`: Bug fix
+- `docs`: Documentation changes
+- `style`: Code style changes (formatting, no logic change)
+- `refactor`: Code refactoring
+- `perf`: Performance improvements
+- `test`: Adding or updating tests
+- `chore`: Maintenance tasks
+- `ci`: CI/CD changes
+
+**Examples:**
+```
+feat(frontend): add time series export to CSV
+fix(backend): resolve database connection timeout
+docs(readme): update installation instructions
+chore(deps): update dependencies
+```
 
 #### Code Standards
 
@@ -49,8 +82,9 @@ Feature suggestions are welcome! Please:
 - Fill out the PR template completely
 - Link to related issues
 - Include tests for new features
-- Ensure all checks pass
+- Ensure all checks pass (linting, tests, builds)
 - Be responsive to feedback
+- Keep the PR scope focused and manageable
 
 ### Development Setup
 
@@ -59,14 +93,89 @@ Feature suggestions are welcome! Please:
 git clone https://github.com/lippytm/AI-Time-Machines.git
 cd AI-Time-Machines
 
-# Install dependencies (if applicable)
-npm install
+# Install all dependencies
+npm run install:all
 
-# Run tests (if applicable)
+# Set up environment variables
+cp .env.example .env
+# Edit .env with your configuration
+
+# Start development servers
+npm run dev
+```
+
+### Running Lint, Test, and Build
+
+#### Linting
+
+**Node.js/JavaScript:**
+```bash
+# Root and backend/frontend
+npm run lint
+
+# Or individually
+cd backend && npm run lint
+cd frontend && npm run lint
+```
+
+**Python:**
+```bash
+# Install linting tools
+pip install ruff mypy
+
+# Run linters
+ruff check .
+mypy .
+```
+
+#### Testing
+
+**Node.js:**
+```bash
+# Run all tests
 npm test
 
-# Run the application (if applicable)
-npm start
+# Backend tests only
+cd backend && npm test
+
+# Frontend tests only
+cd frontend && npm test
+```
+
+**Python:**
+```bash
+# Install pytest if not already installed
+pip install pytest
+
+# Run tests
+cd python-service && pytest
+```
+
+#### Building
+
+**Full build:**
+```bash
+npm run build
+```
+
+**Individual builds:**
+```bash
+# Backend
+cd backend && npm run build
+
+# Frontend
+cd frontend && npm run build
+```
+
+**Docker:**
+```bash
+# Build all services
+docker-compose build
+
+# Or build individually
+docker build -t ai-timemachines-backend ./backend
+docker build -t ai-timemachines-frontend ./frontend
+docker build -t ai-timemachines-python ./python-service
 ```
 
 ### Code of Conduct
