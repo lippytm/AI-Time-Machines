@@ -1,6 +1,7 @@
 const { Prediction, AIModel } = require('../models');
 const { validationResult } = require('express-validator');
 const axios = require('axios');
+const { exportPrediction } = require('../utils/exportUtils');
 
 const PYTHON_SERVICE_URL = process.env.PYTHON_SERVICE_URL || 'http://localhost:8000';
 
@@ -124,9 +125,52 @@ const deletePrediction = async (req, res) => {
   }
 };
 
+// Export prediction in various formats
+const exportPredictionData = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { format } = req.query;
+
+    const prediction = await Prediction.findOne({
+      where: { id, userId: req.userId },
+      include: [{ model: AIModel, as: 'model' }]
+    });
+
+    if (!prediction) {
+      return res.status(404).json({ error: { message: 'Prediction not found' } });
+    }
+
+    const exportFormat = format || 'json';
+    const exportedData = exportPrediction(prediction, exportFormat);
+
+    // Set appropriate content type
+    const contentTypes = {
+      csv: 'text/csv',
+      json: 'application/json',
+      xml: 'application/xml',
+      manychat: 'application/json',
+      botbuilders: 'application/json',
+      openclaw: 'application/json',
+      moltbook: 'application/json'
+    };
+
+    res.set('Content-Type', contentTypes[exportFormat] || 'application/json');
+    
+    if (exportFormat === 'csv' || exportFormat === 'xml') {
+      res.send(exportedData);
+    } else {
+      res.json(exportedData);
+    }
+  } catch (error) {
+    console.error('Export prediction error:', error);
+    res.status(500).json({ error: { message: 'Failed to export prediction' } });
+  }
+};
+
 module.exports = {
   getAllPredictions,
   getPrediction,
   createPrediction,
-  deletePrediction
+  deletePrediction,
+  exportPredictionData
 };
