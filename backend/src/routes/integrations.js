@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { body } = require('express-validator');
 const { auth } = require('../middleware/auth');
+const { apiLimiter, createLimiter } = require('../middleware/rateLimiter');
 const {
   getAllIntegrations,
   getIntegration,
@@ -14,19 +15,26 @@ const {
   getPlatforms
 } = require('../controllers/integrationsController');
 
+// Receive webhook (no auth for external webhooks - must be before auth middleware)
+router.post('/webhooks/:platform', receiveWebhook);
+
+// All other routes require authentication and rate limiting
+router.use(auth);
+router.use(apiLimiter);
+
 // Get available platforms
-router.get('/platforms', auth, getPlatforms);
+router.get('/platforms', getPlatforms);
 
 // Get all integrations
-router.get('/', auth, getAllIntegrations);
+router.get('/', getAllIntegrations);
 
 // Get single integration
-router.get('/:id', auth, getIntegration);
+router.get('/:id', getIntegration);
 
 // Create integration
 router.post(
   '/',
-  auth,
+  createLimiter,
   [
     body('name').notEmpty().trim().isLength({ min: 1, max: 255 }),
     body('platform').notEmpty().isIn(['manychat', 'botbuilders', 'openclaw', 'moltbook', 'webhook', 'other']),
@@ -40,18 +48,15 @@ router.post(
 );
 
 // Update integration
-router.put('/:id', auth, updateIntegration);
+router.put('/:id', updateIntegration);
 
 // Delete integration
-router.delete('/:id', auth, deleteIntegration);
+router.delete('/:id', deleteIntegration);
 
 // Test integration
-router.post('/:id/test', auth, testIntegration);
+router.post('/:id/test', testIntegration);
 
 // Send prediction to integration
-router.post('/:id/send', auth, sendPrediction);
-
-// Receive webhook (no auth for external webhooks)
-router.post('/webhooks/:platform', receiveWebhook);
+router.post('/:id/send', sendPrediction);
 
 module.exports = router;
