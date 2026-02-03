@@ -70,7 +70,20 @@ const Predictions = () => {
       const downloadUrl = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = downloadUrl;
-      link.download = `prediction-${id}.${format === 'csv' ? 'csv' : format === 'xml' ? 'xml' : 'json'}`;
+      
+      // Determine file extension based on format
+      const fileExtensions = {
+        csv: 'csv',
+        xml: 'xml',
+        json: 'json',
+        manychat: 'json',
+        botbuilders: 'json',
+        openclaw: 'json',
+        moltbook: 'json'
+      };
+      const extension = fileExtensions[format] || 'json';
+      
+      link.download = `prediction-${id}.${extension}`;
       document.body.appendChild(link);
       link.click();
       link.remove();

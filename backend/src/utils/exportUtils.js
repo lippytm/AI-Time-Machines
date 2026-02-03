@@ -177,6 +177,18 @@ function exportForOpenClaw(prediction) {
  * Export for Moltbook format (notebook platform)
  */
 function exportForMoltbook(prediction) {
+  const pythonVisualizationCode = [
+    'import matplotlib.pyplot as plt',
+    'import numpy as np',
+    '',
+    `predictions = np.array(${JSON.stringify(prediction.predictions)})`,
+    'plt.plot(predictions)',
+    "plt.title('Time Series Predictions')",
+    "plt.xlabel('Time Steps')",
+    "plt.ylabel('Predicted Values')",
+    'plt.show()'
+  ].join('\n');
+
   return {
     cells: [
       {
@@ -195,7 +207,7 @@ function exportForMoltbook(prediction) {
       {
         type: 'code',
         language: 'python',
-        content: `import matplotlib.pyplot as plt\nimport numpy as np\n\npredictions = np.array(${JSON.stringify(prediction.predictions)})\nplt.plot(predictions)\nplt.title('Time Series Predictions')\nplt.xlabel('Time Steps')\nplt.ylabel('Predicted Values')\nplt.show()`
+        content: pythonVisualizationCode
       }
     ],
     metadata: {
