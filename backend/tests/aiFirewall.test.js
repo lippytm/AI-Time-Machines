@@ -68,6 +68,13 @@ describe('AI Firewall Middleware', () => {
       expect(detectSqlInjection("EXECUTE IMMEDIATE 'DROP TABLE users'")).toBe(true);
     });
 
+    test('should not detect false positives for EXEC patterns', () => {
+      expect(detectSqlInjection("executable program")).toBe(false);
+      expect(detectSqlInjection("execution time")).toBe(false);
+      // Note: "execute" is a SQL keyword, so "execute my plan" may trigger detection
+      // which is acceptable for security purposes
+    });
+
     test('should allow normal input', () => {
       expect(detectSqlInjection("normal text")).toBe(false);
       expect(detectSqlInjection("user@example.com")).toBe(false);
@@ -99,6 +106,12 @@ describe('AI Firewall Middleware', () => {
       expect(detectXss('<iframe src="evil.com"></iframe>')).toBe(true);
       expect(detectXss('<object data="evil.swf"></object>')).toBe(true);
       expect(detectXss('<embed src="evil.swf">')).toBe(true);
+    });
+
+    test('should detect modern XSS vectors', () => {
+      expect(detectXss('<svg onload="alert(1)">')).toBe(true);
+      expect(detectXss('<object data="data:text/html,<script>alert(1)</script>">')).toBe(true);
+      expect(detectXss('data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==')).toBe(true);
     });
 
     test('should detect javascript: protocol', () => {

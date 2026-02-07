@@ -56,7 +56,7 @@ function detectSqlInjection(input) {
 
   const sqlPatterns = [
     /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|EXECUTE|UNION|DECLARE)\b)/i,
-    /(EXEC\s*\(|EXECUTE\s+IMMEDIATE)/i,  // EXEC() and EXECUTE IMMEDIATE patterns
+    /(\bEXEC\s*\(|\bEXECUTE\s+IMMEDIATE\b)/i,  // EXEC() and EXECUTE IMMEDIATE with word boundaries
     /(--|#|\/\*|\*\/)/,  // SQL comments
     /;.*(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER)\b)/i,  // Semicolon followed by SQL keyword
     /(\bOR\b|\bAND\b)\s+\d+\s*=\s*\d+/i,  // OR 1=1, AND 1=1
@@ -90,9 +90,11 @@ function detectXss(input) {
     /<iframe[\s\S]*?>/i,
     /<object[\s\S]*?>/i,
     /<embed[\s\S]*?>/i,
+    /<svg[\s\S]*?>/i,  // SVG-based XSS
     /on\w+\s*=\s*["'][^"']*["']/i,  // Event handlers
     /javascript:/i,
     /vbscript:/i,
+    /data:text\/html/i,  // data: URI with HTML
     /<img[\s\S]*?onerror[\s\S]*?>/i,
   ];
 
