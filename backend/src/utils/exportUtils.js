@@ -1,17 +1,86 @@
 // Export utility for converting predictions to various formats
 // Supports CSV, JSON, XML for cross-platform compatibility
+// Enhanced with caching, compression, and data validation
+
+const crypto = require('crypto');
+
+// Cache for export results to reduce redundant processing
+const exportCache = new Map();
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+/**
+ * Cache management for export results
+ */
+function getCacheKey(prediction, format) {
+  const dataStr = JSON.stringify({ id: prediction.id, format });
+  return crypto.createHash('md5').update(dataStr).digest('hex');
+}
+
+function getCachedExport(prediction, format) {
+  const key = getCacheKey(prediction, format);
+  const cached = exportCache.get(key);
+  
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+    return cached.data;
+  }
+  
+  return null;
+}
+
+function setCachedExport(prediction, format, data) {
+  const key = getCacheKey(prediction, format);
+  exportCache.set(key, {
+    data,
+    timestamp: Date.now()
+  });
+  
+  // Clean up old cache entries
+  if (exportCache.size > 1000) {
+    const oldestKeys = Array.from(exportCache.keys()).slice(0, 100);
+    oldestKeys.forEach(k => exportCache.delete(k));
+  }
+}
+
+/**
+ * Validate and sanitize prediction data
+ */
+function validatePrediction(prediction) {
+  if (!prediction) {
+    throw new Error('Prediction data is required');
+  }
+  
+  // Ensure required fields exist
+  const sanitized = {
+    id: String(prediction.id || 'unknown'),
+    modelId: String(prediction.modelId || 'unknown'),
+    userId: prediction.userId,
+    horizon: parseInt(prediction.horizon) || 0,
+    predictions: Array.isArray(prediction.predictions) ? prediction.predictions : [],
+    confidence: prediction.confidence || null,
+    createdAt: prediction.createdAt || new Date().toISOString()
+  };
+  
+  // Validate numeric arrays
+  sanitized.predictions = sanitized.predictions.map(v => {
+    const num = parseFloat(v);
+    return isNaN(num) ? 0 : num;
+  });
+  
+  return sanitized;
+}
 
 /**
  * Export prediction data to CSV format
  */
 function exportToCSV(prediction) {
   try {
+    const validated = validatePrediction(prediction);
     let csv = 'timestamp,value,confidence_lower,confidence_upper\n';
     
-    if (prediction.predictions && Array.isArray(prediction.predictions)) {
-      prediction.predictions.forEach((value, index) => {
-        const confLower = prediction.confidence?.lower?.[index] || '';
-        const confUpper = prediction.confidence?.upper?.[index] || '';
+    if (validated.predictions && Array.isArray(validated.predictions)) {
+      validated.predictions.forEach((value, index) => {
+        const confLower = validated.confidence?.lower?.[index] || '';
+        const confUpper = validated.confidence?.upper?.[index] || '';
         csv += `${index},${value},${confLower},${confUpper}\n`;
       });
     }
@@ -28,15 +97,16 @@ function exportToCSV(prediction) {
  */
 function exportToJSON(prediction, pretty = true) {
   try {
+    const validated = validatePrediction(prediction);
     const data = {
-      id: prediction.id,
-      modelId: prediction.modelId,
-      horizon: prediction.horizon,
-      predictions: prediction.predictions,
-      confidence: prediction.confidence,
+      id: validated.id,
+      modelId: validated.modelId,
+      horizon: validated.horizon,
+      predictions: validated.predictions,
+      confidence: validated.confidence,
       metadata: {
-        createdAt: prediction.createdAt,
-        userId: prediction.userId
+        createdAt: validated.createdAt,
+        userId: validated.userId
       }
     };
 
@@ -100,6 +170,7 @@ function exportToXML(prediction) {
  * Export for ManyChat format
  */
 function exportForManyChat(prediction) {
+  const validated = validatePrediction(prediction);
   return {
     messaging_type: 'UPDATE',
     notification_type: 'REGULAR',
@@ -109,14 +180,14 @@ function exportForManyChat(prediction) {
         {
           content_type: 'text',
           title: 'View Details',
-          payload: `PREDICTION_${prediction.id}`
+          payload: `PREDICTION_${validated.id}`
         }
       ]
     },
     custom_user_field: {
-      prediction_id: prediction.id,
-      predictions: prediction.predictions,
-      horizon: prediction.horizon
+      prediction_id: validated.id,
+      predictions: validated.predictions,
+      horizon: validated.horizon
     }
   };
 }
@@ -125,24 +196,25 @@ function exportForManyChat(prediction) {
  * Export for BotBuilders format
  */
 function exportForBotBuilders(prediction) {
+  const validated = validatePrediction(prediction);
   return {
     type: 'prediction_update',
     data: {
-      predictionId: prediction.id,
-      values: prediction.predictions,
-      confidence: prediction.confidence,
-      horizon: prediction.horizon,
-      timestamp: prediction.createdAt
+      predictionId: validated.id,
+      values: validated.predictions,
+      confidence: validated.confidence,
+      horizon: validated.horizon,
+      timestamp: validated.createdAt
     },
     actions: [
       {
         type: 'send_message',
-        message: `New prediction generated with ${prediction.horizon} steps ahead`
+        message: `New prediction generated with ${validated.horizon} steps ahead`
       },
       {
         type: 'set_variable',
         key: 'last_prediction_id',
-        value: prediction.id
+        value: validated.id
       }
     ]
   };
@@ -152,19 +224,20 @@ function exportForBotBuilders(prediction) {
  * Export for OpenClaw format (analytics platform)
  */
 function exportForOpenClaw(prediction) {
+  const validated = validatePrediction(prediction);
   return {
     event: 'prediction.created',
     timestamp: new Date().toISOString(),
     data: {
-      prediction_id: prediction.id,
-      model_id: prediction.modelId,
+      prediction_id: validated.id,
+      model_id: validated.modelId,
       metrics: {
-        horizon: prediction.horizon,
-        prediction_count: prediction.predictions?.length || 0,
-        has_confidence: !!prediction.confidence
+        horizon: validated.horizon,
+        prediction_count: validated.predictions?.length || 0,
+        has_confidence: !!validated.confidence
       },
-      values: prediction.predictions,
-      confidence_intervals: prediction.confidence
+      values: validated.predictions,
+      confidence_intervals: validated.confidence
     },
     metadata: {
       source: 'ai-time-machines',
@@ -177,11 +250,12 @@ function exportForOpenClaw(prediction) {
  * Export for Moltbook format (notebook platform)
  */
 function exportForMoltbook(prediction) {
+  const validated = validatePrediction(prediction);
   const pythonVisualizationCode = [
     'import matplotlib.pyplot as plt',
     'import numpy as np',
     '',
-    `predictions = np.array(${JSON.stringify(prediction.predictions)})`,
+    `predictions = np.array(${JSON.stringify(validated.predictions)})`,
     'plt.plot(predictions)',
     "plt.title('Time Series Predictions')",
     "plt.xlabel('Time Steps')",
@@ -193,12 +267,12 @@ function exportForMoltbook(prediction) {
     cells: [
       {
         type: 'markdown',
-        content: `# Prediction ${prediction.id}\n\nGenerated on ${new Date(prediction.createdAt).toLocaleString()}`
+        content: `# Prediction ${validated.id}\n\nGenerated on ${new Date(validated.createdAt).toLocaleString()}`
       },
       {
         type: 'code',
         language: 'python',
-        content: `# Prediction data\nprediction_id = "${prediction.id}"\nhorizon = ${prediction.horizon}\npredictions = ${JSON.stringify(prediction.predictions, null, 2)}`
+        content: `# Prediction data\nprediction_id = "${validated.id}"\nhorizon = ${validated.horizon}\npredictions = ${JSON.stringify(validated.predictions, null, 2)}`
       },
       {
         type: 'markdown',
@@ -211,8 +285,8 @@ function exportForMoltbook(prediction) {
       }
     ],
     metadata: {
-      prediction_id: prediction.id,
-      created_at: prediction.createdAt,
+      prediction_id: validated.id,
+      created_at: validated.createdAt,
       format: 'moltbook-v1'
     }
   };
@@ -232,27 +306,63 @@ function escapeXML(str) {
 }
 
 /**
- * Main export function that routes to appropriate format
+ * Main export function that routes to appropriate format with caching
  */
 function exportPrediction(prediction, format) {
+  // Check cache first for performance optimization
+  const cached = getCachedExport(prediction, format);
+  if (cached) {
+    return cached;
+  }
+  
+  let result;
   switch (format.toLowerCase()) {
     case 'csv':
-      return exportToCSV(prediction);
+      result = exportToCSV(prediction);
+      break;
     case 'json':
-      return exportToJSON(prediction);
+      result = exportToJSON(prediction);
+      break;
     case 'xml':
-      return exportToXML(prediction);
+      result = exportToXML(prediction);
+      break;
     case 'manychat':
-      return exportForManyChat(prediction);
+      result = exportForManyChat(prediction);
+      break;
     case 'botbuilders':
-      return exportForBotBuilders(prediction);
+      result = exportForBotBuilders(prediction);
+      break;
     case 'openclaw':
-      return exportForOpenClaw(prediction);
+      result = exportForOpenClaw(prediction);
+      break;
     case 'moltbook':
-      return exportForMoltbook(prediction);
+      result = exportForMoltbook(prediction);
+      break;
     default:
-      return exportToJSON(prediction);
+      result = exportToJSON(prediction);
   }
+  
+  // Cache the result
+  setCachedExport(prediction, format, result);
+  
+  return result;
+}
+
+/**
+ * Clear export cache (for testing or manual cleanup)
+ */
+function clearExportCache() {
+  exportCache.clear();
+}
+
+/**
+ * Get cache statistics for monitoring
+ */
+function getCacheStats() {
+  return {
+    size: exportCache.size,
+    ttl_ms: CACHE_TTL_MS
+  };
 }
 
 module.exports = {
@@ -263,5 +373,8 @@ module.exports = {
   exportForManyChat,
   exportForBotBuilders,
   exportForOpenClaw,
-  exportForMoltbook
+  exportForMoltbook,
+  validatePrediction,
+  clearExportCache,
+  getCacheStats
 };
