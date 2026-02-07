@@ -57,9 +57,10 @@ function detectSqlInjection(input) {
   const sqlPatterns = [
     /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|EXECUTE|UNION|DECLARE)\b)/i,
     /(--|#|\/\*|\*\/)/,  // SQL comments
-    /('|('')|;|--|\|\|)/,  // SQL metacharacters
+    /;.*(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER)\b)/i,  // Semicolon followed by SQL keyword
     /(\bOR\b|\bAND\b)\s+\d+\s*=\s*\d+/i,  // OR 1=1, AND 1=1
     /(\bOR\b|\bAND\b)\s+['"]\w+['"]\s*=\s*['"]\w+['"]/i,  // OR 'a'='a'
+    /'\s*(\bOR\b|\bAND\b)/i,  // ' OR, ' AND
     /SLEEP\s*\(/i,
     /BENCHMARK\s*\(/i,
     /WAITFOR\s+DELAY/i,
