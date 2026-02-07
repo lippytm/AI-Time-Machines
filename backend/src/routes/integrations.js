@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 const { body } = require('express-validator');
 const { auth } = require('../middleware/auth');
-const { apiLimiter, createLimiter } = require('../middleware/rateLimiter');
+const { apiLimiter, createLimiter, webhookLimiter } = require('../middleware/rateLimiter');
+const { validateUrlParams } = require('../middleware/aiFirewall');
 const {
   getAllIntegrations,
   getIntegration,
@@ -16,7 +17,8 @@ const {
 } = require('../controllers/integrationsController');
 
 // Receive webhook (no auth for external webhooks - must be before auth middleware)
-router.post('/webhooks/:platform', receiveWebhook);
+// Apply webhook-specific rate limiting
+router.post('/webhooks/:platform', webhookLimiter, receiveWebhook);
 
 // All other routes require authentication and rate limiting
 router.use(auth);
@@ -31,10 +33,11 @@ router.get('/', getAllIntegrations);
 // Get single integration
 router.get('/:id', getIntegration);
 
-// Create integration
+// Create integration - with URL validation
 router.post(
   '/',
   createLimiter,
+  validateUrlParams(['webhookUrl']),
   [
     body('name').notEmpty().trim().isLength({ min: 1, max: 255 }),
     body('platform').notEmpty().isIn(['manychat', 'botbuilders', 'openclaw', 'moltbook', 'webhook', 'other']),
@@ -47,8 +50,8 @@ router.post(
   createIntegration
 );
 
-// Update integration
-router.put('/:id', updateIntegration);
+// Update integration - with URL validation
+router.put('/:id', validateUrlParams(['webhookUrl']), updateIntegration);
 
 // Delete integration
 router.delete('/:id', deleteIntegration);

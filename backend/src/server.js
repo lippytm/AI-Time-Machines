@@ -11,6 +11,9 @@ const predictionsRoutes = require('./routes/predictions');
 const aiToolsRoutes = require('./routes/aiTools');
 const integrationsRoutes = require('./routes/integrations');
 
+const { apiLimiter } = require('./middleware/rateLimiter');
+const { aiFirewall, sqlInjectionProtection } = require('./middleware/aiFirewall');
+
 const app = express();
 
 // Security middleware
@@ -30,6 +33,13 @@ app.use(express.urlencoded({ extended: true }));
 if (process.env.NODE_ENV !== 'test') {
   app.use(morgan('dev'));
 }
+
+// Security middleware - AI Firewall
+app.use(aiFirewall);
+app.use(sqlInjectionProtection);
+
+// Rate limiting for all API routes
+app.use('/api/', apiLimiter);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
