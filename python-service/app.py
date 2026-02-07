@@ -8,9 +8,14 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 import requests
 
-# Import model trainers and predictors
-from models.lstm_model import LSTMModel
-from models.time_series_predictor import TimeSeriesPredictor
+# Try to import model trainers and predictors (may not be available in test env)
+try:
+    from models.lstm_model import LSTMModel
+    from models.time_series_predictor import TimeSeriesPredictor
+    ML_AVAILABLE = True
+except ImportError:
+    ML_AVAILABLE = False
+    print("Warning: ML models not available. Running in limited mode.")
 
 # Load environment variables
 load_dotenv('../.env')
@@ -142,6 +147,11 @@ def health_check():
 def train_model():
     """Train a time series model with retry logic and fallback"""
     start_time = time.time()
+    
+    if not ML_AVAILABLE:
+        health_monitor.record_request(time.time() - start_time, is_error=True)
+        return jsonify({'error': 'ML models not available in this environment'}), 503
+    
     try:
         data = request.json
         model_id = data.get('modelId')
@@ -208,6 +218,31 @@ CACHE_TTL = 300  # 5 minutes
 def generate_prediction():
     """Generate predictions with caching and performance optimization"""
     start_time = time.time()
+    
+    if not ML_AVAILABLE:
+        # Use fallback mechanism when ML is not available
+        try:
+            data = request.json
+            input_data = data.get('inputData', [])
+            horizon = data.get('horizon', 10)
+            
+            fallback_predictions = generate_fallback_prediction(input_data, horizon)
+            duration = time.time() - start_time
+            health_monitor.record_request(duration, is_error=False)
+            
+            return jsonify({
+                'predictions': fallback_predictions,
+                'confidence': None,
+                'horizon': horizon,
+                'fallback': True,
+                'fallback_reason': 'ML models not available',
+                'inference_time_ms': duration * 1000
+            }), 200
+        except Exception as e:
+            duration = time.time() - start_time
+            health_monitor.record_request(duration, is_error=True)
+            return jsonify({'error': str(e)}), 500
+    
     try:
         data = request.json
         model_id = data.get('modelId')
