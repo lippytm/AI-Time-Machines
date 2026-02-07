@@ -190,7 +190,7 @@ This implementation successfully extends the AI-enhanced pipeline improvements a
 7. `SECURITY_SUMMARY.md` - Updated with new security features
 
 ### Dependencies Added
-- `validator@13.11.0` - URL validation and string sanitization
+- `validator@13.15.22` - URL validation and string sanitization (patched version addressing CVE vulnerability)
 
 ## Security Improvements
 
@@ -243,7 +243,7 @@ cp AI_FIREWALL_CONFIG.md <target-repo>/
 ### Step 2: Install Dependencies
 ```bash
 cd <target-repo>/backend
-npm install validator@13.11.0 --save
+npm install validator@13.15.22 --save
 ```
 
 ### Step 3: Integrate Middleware

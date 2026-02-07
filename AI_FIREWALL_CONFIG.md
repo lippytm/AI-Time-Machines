@@ -310,7 +310,7 @@ All exports are subject to rate limiting via the `exportLimiter`.
 
 2. Update `package.json` dependencies:
    ```json
-   "validator": "^13.11.0"
+   "validator": "^13.15.22"
    ```
 
 3. Update `server.js` to include middleware:
