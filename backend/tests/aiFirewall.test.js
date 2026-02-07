@@ -62,6 +62,12 @@ describe('AI Firewall Middleware', () => {
       expect(detectSqlInjection("BENCHMARK(1000000,MD5('test'))")).toBe(true);
     });
 
+    test('should detect EXEC and EXECUTE patterns', () => {
+      expect(detectSqlInjection("EXEC('SELECT * FROM users')")).toBe(true);
+      expect(detectSqlInjection("EXEC sp_executesql")).toBe(true);
+      expect(detectSqlInjection("EXECUTE IMMEDIATE 'DROP TABLE users'")).toBe(true);
+    });
+
     test('should allow normal input', () => {
       expect(detectSqlInjection("normal text")).toBe(false);
       expect(detectSqlInjection("user@example.com")).toBe(false);

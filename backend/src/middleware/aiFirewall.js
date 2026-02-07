@@ -56,6 +56,7 @@ function detectSqlInjection(input) {
 
   const sqlPatterns = [
     /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|EXECUTE|UNION|DECLARE)\b)/i,
+    /(EXEC\s*\(|EXECUTE\s+IMMEDIATE)/i,  // EXEC() and EXECUTE IMMEDIATE patterns
     /(--|#|\/\*|\*\/)/,  // SQL comments
     /;.*(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER)\b)/i,  // Semicolon followed by SQL keyword
     /(\bOR\b|\bAND\b)\s+\d+\s*=\s*\d+/i,  // OR 1=1, AND 1=1
