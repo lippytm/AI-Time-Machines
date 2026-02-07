@@ -1,4 +1,4 @@
-const { exportPrediction, exportToCSV, exportToJSON, exportToXML } = require('../src/utils/exportUtils');
+const { exportPrediction, exportToCSV, exportToJSON, exportToXML, clearExportCache } = require('../src/utils/exportUtils');
 
 describe('Export Utils', () => {
   const mockPrediction = {
@@ -13,6 +13,11 @@ describe('Export Utils', () => {
     },
     createdAt: new Date('2026-02-03T21:00:00Z')
   };
+
+  beforeEach(() => {
+    // Clear cache before each test to ensure consistent results
+    clearExportCache();
+  });
 
   describe('exportToJSON', () => {
     test('should export prediction to JSON format', () => {
