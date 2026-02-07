@@ -4,7 +4,8 @@ const {
   getAllPredictions,
   getPrediction,
   createPrediction,
-  deletePrediction
+  deletePrediction,
+  exportPredictionData
 } = require('../controllers/predictionsController');
 const { auth } = require('../middleware/auth');
 const { apiLimiter, createLimiter } = require('../middleware/rateLimiter');
@@ -22,6 +23,9 @@ router.get('/', getAllPredictions);
 
 // Get single prediction
 router.get('/:id', getPrediction);
+
+// Export prediction in various formats
+router.get('/:id/export', exportPredictionData);
 
 // Create prediction
 router.post('/',

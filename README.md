@@ -14,6 +14,7 @@ AI-Time-Machines is a comprehensive Full Stack platform that combines React, Nod
 - 🤖 AI model training interface
 - 🔮 Predictions visualization
 - 🛠️ AI tools and toolkits management
+- 🔌 Platform integrations management
 
 ### Backend (Node.js + Express)
 - ⚡ RESTful API with Express.js
@@ -25,6 +26,8 @@ AI-Time-Machines is a comprehensive Full Stack platform that combines React, Nod
   - AI model training workflows
   - Prediction generation
   - AI tools and toolkits catalog
+  - Platform integrations (ManyChat, BotBuilders, OpenClaw, Moltbook)
+  - Multi-format data export (JSON, CSV, XML)
 
 ### AI/ML Service (Python + TensorFlow)
 - 🧠 Time-series forecasting models:
@@ -248,6 +251,33 @@ AI-Time-Machines/
 - `GET /api/aitools/:id` - Get AI tool
 - `PUT /api/aitools/:id` - Update AI tool
 - `DELETE /api/aitools/:id` - Delete AI tool
+
+### Integrations
+- `GET /api/integrations` - List all integrations
+- `GET /api/integrations/platforms` - Get available platforms
+- `POST /api/integrations` - Create integration
+- `GET /api/integrations/:id` - Get integration
+- `PUT /api/integrations/:id` - Update integration
+- `DELETE /api/integrations/:id` - Delete integration
+- `POST /api/integrations/:id/test` - Test integration connection
+- `POST /api/integrations/:id/send` - Send prediction to integration
+- `POST /api/integrations/webhooks/:platform` - Receive webhook (external)
+
+### Export
+- `GET /api/predictions/:id/export?format={format}` - Export prediction
+  - Supported formats: `json`, `csv`, `xml`, `manychat`, `botbuilders`, `openclaw`, `moltbook`
+
+## 🔌 Platform Integrations
+
+AI-Time-Machines supports cross-platform connectivity with popular chatbot platforms and analytics tools:
+
+- **ManyChat** - Facebook Messenger chatbot integration
+- **BotBuilders** - Multi-platform chatbot builder
+- **OpenClaw** - Analytics and automation platform
+- **Moltbook** - Interactive notebook platform
+- **Custom Webhooks** - Generic webhook support
+
+For detailed integration documentation, see [INTEGRATIONS.md](INTEGRATIONS.md).
 
 ## 🧪 Testing
 

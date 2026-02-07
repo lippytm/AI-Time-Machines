@@ -49,6 +49,12 @@ const Layout = () => {
                 >
                   AI Tools
                 </Link>
+                <Link
+                  to="/integrations"
+                  className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/integrations')}`}
+                >
+                  Integrations
+                </Link>
               </div>
             </div>
             

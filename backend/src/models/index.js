@@ -3,6 +3,7 @@ const TimeSeries = require('./TimeSeries');
 const AIModel = require('./AIModel');
 const Prediction = require('./Prediction');
 const AITool = require('./AITool');
+const Integration = require('./Integration');
 
 // Define associations
 User.hasMany(TimeSeries, { foreignKey: 'userId', as: 'timeSeries' });
@@ -23,10 +24,14 @@ Prediction.belongsTo(AIModel, { foreignKey: 'modelId', as: 'model' });
 User.hasMany(AITool, { foreignKey: 'userId', as: 'aiTools' });
 AITool.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
+User.hasMany(Integration, { foreignKey: 'userId', as: 'integrations' });
+Integration.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
 module.exports = {
   User,
   TimeSeries,
   AIModel,
   Prediction,
-  AITool
+  AITool,
+  Integration
 };

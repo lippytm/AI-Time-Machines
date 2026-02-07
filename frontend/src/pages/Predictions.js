@@ -56,6 +56,44 @@ const Predictions = () => {
     }
   };
 
+  const handleExport = async (id, format) => {
+    try {
+      const token = localStorage.getItem('token');
+      const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+      const url = `${API_BASE_URL}/predictions/${id}/export?format=${format}`;
+      
+      const response = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      
+      // Determine file extension based on format
+      const fileExtensions = {
+        csv: 'csv',
+        xml: 'xml',
+        json: 'json',
+        manychat: 'json',
+        botbuilders: 'json',
+        openclaw: 'json',
+        moltbook: 'json'
+      };
+      const extension = fileExtensions[format] || 'json';
+      
+      link.download = `prediction-${id}.${extension}`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (error) {
+      console.error('Failed to export prediction:', error);
+      alert('Failed to export prediction');
+    }
+  };
+
   if (loading) {
     return <div className="text-center py-8">Loading...</div>;
   }
@@ -101,12 +139,63 @@ const Predictions = () => {
                     Created: {new Date(prediction.createdAt).toLocaleString()}
                   </p>
                 </div>
-                <button
-                  onClick={() => handleDelete(prediction.id)}
-                  className="text-red-600 hover:text-red-900 text-sm"
-                >
-                  Delete
-                </button>
+                <div className="flex gap-2">
+                  <div className="relative group">
+                    <button className="bg-green-100 text-green-700 px-3 py-1 rounded text-sm hover:bg-green-200">
+                      Export ▼
+                    </button>
+                    <div className="absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-lg border hidden group-hover:block z-10">
+                      <button
+                        onClick={() => handleExport(prediction.id, 'json')}
+                        className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+                      >
+                        Export as JSON
+                      </button>
+                      <button
+                        onClick={() => handleExport(prediction.id, 'csv')}
+                        className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+                      >
+                        Export as CSV
+                      </button>
+                      <button
+                        onClick={() => handleExport(prediction.id, 'xml')}
+                        className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+                      >
+                        Export as XML
+                      </button>
+                      <button
+                        onClick={() => handleExport(prediction.id, 'manychat')}
+                        className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+                      >
+                        ManyChat Format
+                      </button>
+                      <button
+                        onClick={() => handleExport(prediction.id, 'botbuilders')}
+                        className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+                      >
+                        BotBuilders Format
+                      </button>
+                      <button
+                        onClick={() => handleExport(prediction.id, 'openclaw')}
+                        className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+                      >
+                        OpenClaw Format
+                      </button>
+                      <button
+                        onClick={() => handleExport(prediction.id, 'moltbook')}
+                        className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+                      >
+                        Moltbook Format
+                      </button>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleDelete(prediction.id)}
+                    className="text-red-600 hover:text-red-900 text-sm"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
               
               <div className="bg-gray-50 rounded p-4">
