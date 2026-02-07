@@ -16,6 +16,8 @@ jobs:
   performance-diagnostics:
     name: CI Performance Diagnostics
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Record pipeline start time
         run: echo "PIPELINE_START=$(date +%s)" >> $GITHUB_ENV
@@ -29,6 +31,9 @@ jobs:
   code-quality:
     name: Code Quality & Security
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
     
     steps:
       - name: Checkout repository
@@ -222,6 +227,8 @@ jobs:
   documentation:
     name: Documentation Check
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     
     steps:
       - name: Checkout repository

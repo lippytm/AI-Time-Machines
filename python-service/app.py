@@ -1,12 +1,18 @@
 import os
 import time
 import psutil
+import hashlib
 from collections import deque
 from datetime import datetime
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
 import requests
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Try to import model trainers and predictors (may not be available in test env)
 try:
@@ -15,7 +21,7 @@ try:
     ML_AVAILABLE = True
 except ImportError:
     ML_AVAILABLE = False
-    print("Warning: ML models not available. Running in limited mode.")
+    logger.warning("ML models not available. Running in limited mode.")
 
 # Load environment variables
 load_dotenv('../.env')
@@ -251,8 +257,9 @@ def generate_prediction():
         input_data = data.get('inputData')
         horizon = data.get('horizon', 10)
 
-        # Generate cache key
-        cache_key = f"{model_id}_{hash(str(input_data))}_{horizon}"
+        # Generate deterministic cache key using MD5
+        cache_data = f"{model_id}_{str(input_data)}_{horizon}"
+        cache_key = hashlib.md5(cache_data.encode()).hexdigest()
         
         # Check cache for improved response time
         if cache_key in prediction_cache:

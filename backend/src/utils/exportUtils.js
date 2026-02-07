@@ -34,10 +34,31 @@ function setCachedExport(prediction, format, data) {
     timestamp: Date.now()
   });
   
-  // Clean up old cache entries
+  // Clean up expired entries when cache grows too large
   if (exportCache.size > 1000) {
-    const oldestKeys = Array.from(exportCache.keys()).slice(0, 100);
-    oldestKeys.forEach(k => exportCache.delete(k));
+    const now = Date.now();
+    const entriesToDelete = [];
+    
+    // Find expired entries
+    for (const [cacheKey, entry] of exportCache.entries()) {
+      if (now - entry.timestamp >= CACHE_TTL_MS) {
+        entriesToDelete.push(cacheKey);
+      }
+    }
+    
+    // Delete expired entries
+    entriesToDelete.forEach(k => exportCache.delete(k));
+    
+    // If still over limit, remove oldest entries by timestamp
+    if (exportCache.size > 1000) {
+      const sortedEntries = Array.from(exportCache.entries())
+        .sort((a, b) => a[1].timestamp - b[1].timestamp);
+      
+      const numToDelete = exportCache.size - 1000;
+      for (let i = 0; i < numToDelete; i++) {
+        exportCache.delete(sortedEntries[i][0]);
+      }
+    }
   }
 }
 
