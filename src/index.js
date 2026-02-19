@@ -1,12 +1,14 @@
 const ChatGPT = require('./chatgpt');
+const OpenClaw = require('./openclaw');
 
 /**
- * Main entry point for AI-Time-Machines ChatGPT Integration
+ * Main entry point for AI-Time-Machines integrations
  */
 
-// Export the ChatGPT class for use in other modules
+// Export integration classes for use in other modules
 module.exports = {
   ChatGPT,
+  OpenClaw,
 };
 
 /**
