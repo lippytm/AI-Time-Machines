@@ -9,6 +9,8 @@ jobs:
   integrations:
     name: AI Platform Integrations
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     
     steps:
       - name: Checkout repository
@@ -147,6 +149,8 @@ jobs:
   security:
     name: AI Full Stack Security
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     
     steps:
       - name: Checkout repository
@@ -307,6 +311,8 @@ jobs:
   ai-coding-best-practices:
     name: AI Coding / Best Practices / DevOps
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     
     steps:
       - name: Checkout repository
