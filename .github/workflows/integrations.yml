@@ -64,6 +64,7 @@ jobs:
         if: steps.detect-secrets.outputs.MANYCHAT_API_KEY_PRESENT == 'true'
         run: |
           echo "Testing ManyChat API connectivity..."
+          # Note: Base URLs can be stored as secrets if they contain sensitive deployment info
           BASE_URL="${{ secrets.SERVICE_BASE_URL_MANYCHAT }}"
           BASE_URL="${BASE_URL:-https://api.manychat.com}"
           
@@ -165,15 +166,20 @@ jobs:
           if [ -f "pyproject.toml" ] || [ -f "requirements.txt" ] || [ -f "python-service/requirements.txt" ]; then
             echo "PYTHON_PROJECT=true" >> $GITHUB_OUTPUT
             
-            # Check if ruff or flake8 are specified
-            if grep -q "ruff" pyproject.toml requirements.txt python-service/requirements.txt 2>/dev/null; then
+            # Check if ruff or flake8 are specified in existing files
+            files_to_check=""
+            [ -f "pyproject.toml" ] && files_to_check="$files_to_check pyproject.toml"
+            [ -f "requirements.txt" ] && files_to_check="$files_to_check requirements.txt"
+            [ -f "python-service/requirements.txt" ] && files_to_check="$files_to_check python-service/requirements.txt"
+            
+            if echo "$files_to_check" | xargs grep -q "ruff" 2>/dev/null; then
               echo "HAS_RUFF=true" >> $GITHUB_OUTPUT
-            elif grep -q "flake8" pyproject.toml requirements.txt python-service/requirements.txt 2>/dev/null; then
+            elif echo "$files_to_check" | xargs grep -q "flake8" 2>/dev/null; then
               echo "HAS_FLAKE8=true" >> $GITHUB_OUTPUT
             fi
             
             # Check if bandit is specified
-            if grep -q "bandit" pyproject.toml requirements.txt python-service/requirements.txt 2>/dev/null; then
+            if echo "$files_to_check" | xargs grep -q "bandit" 2>/dev/null; then
               echo "HAS_BANDIT=true" >> $GITHUB_OUTPUT
             fi
           else
@@ -184,8 +190,8 @@ jobs:
         if: steps.check-python-tools.outputs.PYTHON_PROJECT == 'true'
         run: |
           # Install minimal set of security tools
-          pip install --quiet bandit || echo "bandit install skipped"
-          pip install --quiet ruff || echo "ruff install skipped"
+          pip install --quiet bandit || echo "bandit install failed, checks will be skipped"
+          pip install --quiet ruff || echo "ruff install failed, checks will be skipped"
 
       - name: Run Ruff (Python linter)
         if: steps.check-python-tools.outputs.PYTHON_PROJECT == 'true'

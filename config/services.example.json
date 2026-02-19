@@ -51,32 +51,32 @@
   },
   
   "service_base_urls": {
-    "note": "Optional service base URLs can be configured via environment variables",
-    "pattern": "SERVICE_BASE_URL_*",
+    "note": "Optional service base URLs can be configured via environment variables or GitHub Secrets if they contain sensitive deployment information",
+    "pattern": "SERVICE_BASE_URL_* - naming convention uses SERVICE_BASE_URL_ prefix followed by service name (matching the API key suffix)",
     "examples": [
       {
         "name": "SERVICE_BASE_URL_OPENCLAW",
-        "description": "Base URL for OpenClaw API",
+        "description": "Base URL for OpenClaw API (matches OPENCLAW_API_KEY)",
         "default": "https://api.openclaw.io"
       },
       {
         "name": "SERVICE_BASE_URL_MANYCHAT",
-        "description": "Base URL for ManyChat API",
+        "description": "Base URL for ManyChat API (matches MANYCHAT_API_KEY)",
         "default": "https://api.manychat.com"
       },
       {
         "name": "SERVICE_BASE_URL_BOTBUILDERS",
-        "description": "Base URL for BotBuilders API",
+        "description": "Base URL for BotBuilders API (matches BOTBUILDERS_API_KEY)",
         "default": "https://api.botbuilders.io"
       },
       {
         "name": "SERVICE_BASE_URL_MOLTBOOK",
-        "description": "Base URL for Moltbook API",
+        "description": "Base URL for Moltbook API (matches MOLTBOOK_API_KEY)",
         "default": "https://api.moltbook.io"
       },
       {
         "name": "SERVICE_BASE_URL_MOLTBOT",
-        "description": "Base URL for Moltbot API",
+        "description": "Base URL for Moltbot API (matches MOLTBOT_API_KEY)",
         "default": "https://api.moltbot.io"
       }
     ]
