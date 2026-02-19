@@ -1,0 +1,121 @@
+{
+  "description": "Example configuration for AI Time Machines service integrations",
+  "documentation": "This file documents expected environment variables and service configurations. DO NOT commit actual secrets - use GitHub Secrets or .env files instead.",
+  
+  "secrets": {
+    "note": "All secrets should be configured as GitHub repository secrets or in .env (not committed)",
+    "required": [
+      {
+        "name": "OPENAI_API_KEY",
+        "description": "OpenAI API key for ChatGPT and other AI services",
+        "obtain_from": "https://platform.openai.com/api-keys"
+      }
+    ],
+    "optional": [
+      {
+        "name": "MANYCHAT_API_KEY",
+        "description": "ManyChat API key for Facebook Messenger chatbot integration",
+        "obtain_from": "ManyChat platform settings"
+      },
+      {
+        "name": "BOTBUILDERS_API_KEY",
+        "description": "BotBuilders API key for multi-platform chatbot integration",
+        "obtain_from": "BotBuilders dashboard"
+      },
+      {
+        "name": "MOLTBOOK_API_KEY",
+        "description": "Moltbook API key for interactive notebook platform",
+        "obtain_from": "Moltbook platform settings"
+      },
+      {
+        "name": "MOLTBOT_API_KEY",
+        "description": "Moltbot API key for bot automation",
+        "obtain_from": "Moltbot platform settings"
+      },
+      {
+        "name": "OPENCLAW_API_KEY",
+        "description": "OpenClaw API key for analytics and automation",
+        "obtain_from": "OpenClaw dashboard"
+      },
+      {
+        "name": "GITHUB_PAT",
+        "description": "GitHub Personal Access Token (only if cross-repo API calls needed)",
+        "obtain_from": "GitHub Settings > Developer settings > Personal access tokens"
+      },
+      {
+        "name": "WEBHOOK_URL",
+        "description": "Generic webhook URL for external integrations",
+        "obtain_from": "External service configuration"
+      }
+    ]
+  },
+  
+  "service_base_urls": {
+    "note": "Optional service base URLs can be configured via environment variables",
+    "pattern": "SERVICE_BASE_URL_*",
+    "examples": [
+      {
+        "name": "SERVICE_BASE_URL_OPENCLAW",
+        "description": "Base URL for OpenClaw API",
+        "default": "https://api.openclaw.io"
+      },
+      {
+        "name": "SERVICE_BASE_URL_MANYCHAT",
+        "description": "Base URL for ManyChat API",
+        "default": "https://api.manychat.com"
+      },
+      {
+        "name": "SERVICE_BASE_URL_BOTBUILDERS",
+        "description": "Base URL for BotBuilders API",
+        "default": "https://api.botbuilders.io"
+      },
+      {
+        "name": "SERVICE_BASE_URL_MOLTBOOK",
+        "description": "Base URL for Moltbook API",
+        "default": "https://api.moltbook.io"
+      },
+      {
+        "name": "SERVICE_BASE_URL_MOLTBOT",
+        "description": "Base URL for Moltbot API",
+        "default": "https://api.moltbot.io"
+      }
+    ]
+  },
+  
+  "integration_examples": {
+    "manychat": {
+      "description": "ManyChat integration for Facebook Messenger chatbots",
+      "endpoints": [
+        "/api/integrations/webhooks/manychat"
+      ],
+      "documentation": "See INTEGRATIONS.md for detailed setup"
+    },
+    "botbuilders": {
+      "description": "BotBuilders multi-platform chatbot integration",
+      "endpoints": [
+        "/api/integrations/webhooks/botbuilders"
+      ],
+      "documentation": "See INTEGRATIONS.md for detailed setup"
+    },
+    "openclaw": {
+      "description": "OpenClaw analytics and automation platform",
+      "endpoints": [
+        "/api/integrations/webhooks/openclaw"
+      ],
+      "documentation": "See INTEGRATIONS.md for detailed setup"
+    },
+    "moltbook": {
+      "description": "Moltbook interactive notebook platform",
+      "endpoints": [
+        "/api/integrations/webhooks/moltbook"
+      ],
+      "documentation": "See INTEGRATIONS.md for detailed setup"
+    }
+  },
+  
+  "usage": {
+    "github_actions": "Secrets are configured in GitHub repository settings under 'Secrets and variables > Actions'",
+    "local_development": "Copy .env.example to .env and fill in your actual values",
+    "docker": "Pass environment variables via docker-compose.yml or .env file"
+  }
+}

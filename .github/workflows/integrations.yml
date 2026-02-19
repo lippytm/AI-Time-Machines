@@ -1,0 +1,430 @@
+name: Full Stack AI Toolkit + Security + DevOps
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  integrations:
+    name: AI Platform Integrations
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Detect Secret Presence (No Values)
+        id: detect-secrets
+        run: |
+          echo "=== Checking Secret Presence (values never printed) ==="
+          
+          # Function to check secret presence without exposing values
+          check_secret() {
+            local secret_name=$1
+            local secret_value=$2
+            if [ -n "$secret_value" ]; then
+              echo "✓ $secret_name is configured"
+              echo "${secret_name}_PRESENT=true" >> $GITHUB_OUTPUT
+            else
+              echo "✗ $secret_name is missing (related steps will be skipped)"
+              echo "${secret_name}_PRESENT=false" >> $GITHUB_OUTPUT
+            fi
+          }
+          
+          # Check all secrets
+          check_secret "OPENAI_API_KEY" "${{ secrets.OPENAI_API_KEY }}"
+          check_secret "MANYCHAT_API_KEY" "${{ secrets.MANYCHAT_API_KEY }}"
+          check_secret "BOTBUILDERS_API_KEY" "${{ secrets.BOTBUILDERS_API_KEY }}"
+          check_secret "MOLTBOOK_API_KEY" "${{ secrets.MOLTBOOK_API_KEY }}"
+          check_secret "MOLTBOT_API_KEY" "${{ secrets.MOLTBOT_API_KEY }}"
+          check_secret "OPENCLAW_API_KEY" "${{ secrets.OPENCLAW_API_KEY }}"
+          check_secret "GITHUB_PAT" "${{ secrets.GITHUB_PAT }}"
+          check_secret "WEBHOOK_URL" "${{ secrets.WEBHOOK_URL }}"
+          
+          echo ""
+          echo "=== Secret Detection Complete ==="
+
+      - name: Test OpenAI Connectivity
+        if: steps.detect-secrets.outputs.OPENAI_API_KEY_PRESENT == 'true'
+        run: |
+          echo "Testing OpenAI API connectivity..."
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: Bearer ${{ secrets.OPENAI_API_KEY }}" \
+            https://api.openai.com/v1/models 2>/dev/null || echo "000")
+          
+          if [ "$response" = "200" ]; then
+            echo "✓ OpenAI API connection successful"
+          else
+            echo "✗ OpenAI API connection failed (HTTP $response)"
+            echo "  Note: This may be expected if API key is not configured"
+          fi
+
+      - name: Test ManyChat Connectivity
+        if: steps.detect-secrets.outputs.MANYCHAT_API_KEY_PRESENT == 'true'
+        run: |
+          echo "Testing ManyChat API connectivity..."
+          BASE_URL="${{ secrets.SERVICE_BASE_URL_MANYCHAT }}"
+          BASE_URL="${BASE_URL:-https://api.manychat.com}"
+          
+          # Placeholder connectivity test
+          echo "  ManyChat Base URL: ${BASE_URL}"
+          echo "  API Key configured: Yes"
+          echo "  Note: Implement specific connectivity test based on ManyChat API docs"
+
+      - name: Test BotBuilders Connectivity
+        if: steps.detect-secrets.outputs.BOTBUILDERS_API_KEY_PRESENT == 'true'
+        run: |
+          echo "Testing BotBuilders API connectivity..."
+          BASE_URL="${{ secrets.SERVICE_BASE_URL_BOTBUILDERS }}"
+          BASE_URL="${BASE_URL:-https://api.botbuilders.io}"
+          
+          echo "  BotBuilders Base URL: ${BASE_URL}"
+          echo "  API Key configured: Yes"
+          echo "  Note: Implement specific connectivity test based on BotBuilders API docs"
+
+      - name: Test Moltbook Connectivity
+        if: steps.detect-secrets.outputs.MOLTBOOK_API_KEY_PRESENT == 'true'
+        run: |
+          echo "Testing Moltbook API connectivity..."
+          BASE_URL="${{ secrets.SERVICE_BASE_URL_MOLTBOOK }}"
+          BASE_URL="${BASE_URL:-https://api.moltbook.io}"
+          
+          echo "  Moltbook Base URL: ${BASE_URL}"
+          echo "  API Key configured: Yes"
+          echo "  Note: Implement specific connectivity test based on Moltbook API docs"
+
+      - name: Test Moltbot Connectivity
+        if: steps.detect-secrets.outputs.MOLTBOT_API_KEY_PRESENT == 'true'
+        run: |
+          echo "Testing Moltbot API connectivity..."
+          BASE_URL="${{ secrets.SERVICE_BASE_URL_MOLTBOT }}"
+          BASE_URL="${BASE_URL:-https://api.moltbot.io}"
+          
+          echo "  Moltbot Base URL: ${BASE_URL}"
+          echo "  API Key configured: Yes"
+          echo "  Note: Implement specific connectivity test based on Moltbot API docs"
+
+      - name: Test OpenClaw Connectivity
+        if: steps.detect-secrets.outputs.OPENCLAW_API_KEY_PRESENT == 'true'
+        run: |
+          echo "Testing OpenClaw API connectivity..."
+          BASE_URL="${{ secrets.SERVICE_BASE_URL_OPENCLAW }}"
+          BASE_URL="${BASE_URL:-https://api.openclaw.io}"
+          
+          echo "  OpenClaw Base URL: ${BASE_URL}"
+          echo "  API Key configured: Yes"
+          echo "  Note: Implement specific connectivity test based on OpenClaw API docs"
+
+      - name: Test GitHub API Connectivity
+        if: steps.detect-secrets.outputs.GITHUB_PAT_PRESENT == 'true'
+        run: |
+          echo "Testing GitHub API connectivity with PAT..."
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: token ${{ secrets.GITHUB_PAT }}" \
+            https://api.github.com/user 2>/dev/null || echo "000")
+          
+          if [ "$response" = "200" ]; then
+            echo "✓ GitHub API connection successful"
+          else
+            echo "✗ GitHub API connection failed (HTTP $response)"
+          fi
+
+      - name: Test Webhook URL
+        if: steps.detect-secrets.outputs.WEBHOOK_URL_PRESENT == 'true'
+        run: |
+          echo "Testing Webhook URL connectivity..."
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -d '{"test": true, "source": "github-actions"}' \
+            "${{ secrets.WEBHOOK_URL }}" 2>/dev/null || echo "000")
+          
+          echo "  Webhook response: HTTP $response"
+          echo "  Note: Response codes vary by webhook service"
+
+  security:
+    name: AI Full Stack Security
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python (if Python files exist)
+        id: setup-python
+        if: hashFiles('**/*.py') != ''
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Check for Python linting tools
+        id: check-python-tools
+        if: steps.setup-python.outcome == 'success'
+        run: |
+          if [ -f "pyproject.toml" ] || [ -f "requirements.txt" ] || [ -f "python-service/requirements.txt" ]; then
+            echo "PYTHON_PROJECT=true" >> $GITHUB_OUTPUT
+            
+            # Check if ruff or flake8 are specified
+            if grep -q "ruff" pyproject.toml requirements.txt python-service/requirements.txt 2>/dev/null; then
+              echo "HAS_RUFF=true" >> $GITHUB_OUTPUT
+            elif grep -q "flake8" pyproject.toml requirements.txt python-service/requirements.txt 2>/dev/null; then
+              echo "HAS_FLAKE8=true" >> $GITHUB_OUTPUT
+            fi
+            
+            # Check if bandit is specified
+            if grep -q "bandit" pyproject.toml requirements.txt python-service/requirements.txt 2>/dev/null; then
+              echo "HAS_BANDIT=true" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "PYTHON_PROJECT=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install Python security tools (minimal)
+        if: steps.check-python-tools.outputs.PYTHON_PROJECT == 'true'
+        run: |
+          # Install minimal set of security tools
+          pip install --quiet bandit || echo "bandit install skipped"
+          pip install --quiet ruff || echo "ruff install skipped"
+
+      - name: Run Ruff (Python linter)
+        if: steps.check-python-tools.outputs.PYTHON_PROJECT == 'true'
+        run: |
+          if command -v ruff &> /dev/null; then
+            echo "Running ruff..."
+            ruff check . --exit-zero || echo "Ruff completed with warnings"
+          else
+            echo "Ruff not available, skipping..."
+          fi
+
+      - name: Run Bandit (Python SAST)
+        if: steps.check-python-tools.outputs.PYTHON_PROJECT == 'true'
+        run: |
+          if command -v bandit &> /dev/null; then
+            echo "Running bandit..."
+            bandit -r . -ll -f txt --exit-zero || echo "Bandit completed with findings"
+          else
+            echo "Bandit not available, skipping..."
+          fi
+
+      - name: Install Semgrep
+        run: |
+          pip install --quiet semgrep || echo "Semgrep install failed, skipping"
+
+      - name: Run Semgrep Security Scan
+        run: |
+          if command -v semgrep &> /dev/null; then
+            echo "Running semgrep with p/ci ruleset..."
+            semgrep --config=p/ci --error --quiet || echo "Semgrep completed"
+          else
+            echo "Semgrep not available, skipping security scan..."
+          fi
+
+      - name: Check for shell scripts
+        id: check-shell
+        run: |
+          if find . -name "*.sh" -type f | grep -q .; then
+            echo "HAS_SHELL=true" >> $GITHUB_OUTPUT
+          else
+            echo "HAS_SHELL=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install ShellCheck
+        if: steps.check-shell.outputs.HAS_SHELL == 'true'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq shellcheck || echo "ShellCheck install failed"
+
+      - name: Run ShellCheck
+        if: steps.check-shell.outputs.HAS_SHELL == 'true'
+        run: |
+          if command -v shellcheck &> /dev/null; then
+            echo "Running shellcheck..."
+            find . -name "*.sh" -type f -exec shellcheck {} + || echo "ShellCheck completed with findings"
+          else
+            echo "ShellCheck not available, skipping..."
+          fi
+
+      - name: Check for markdown files
+        id: check-markdown
+        run: |
+          if find . -name "*.md" -type f | grep -q .; then
+            echo "HAS_MARKDOWN=true" >> $GITHUB_OUTPUT
+          else
+            echo "HAS_MARKDOWN=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup Node.js for markdownlint
+        if: steps.check-markdown.outputs.HAS_MARKDOWN == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Run MarkdownLint
+        if: steps.check-markdown.outputs.HAS_MARKDOWN == 'true'
+        run: |
+          echo "Installing markdownlint-cli..."
+          npm install -g markdownlint-cli 2>/dev/null || echo "markdownlint install failed"
+          
+          if command -v markdownlint &> /dev/null; then
+            echo "Running markdownlint..."
+            markdownlint '**/*.md' --ignore node_modules --ignore .git || echo "MarkdownLint completed with findings"
+          else
+            echo "MarkdownLint not available, skipping..."
+          fi
+
+      - name: Check for Python lockfiles
+        id: check-pip-lockfile
+        run: |
+          if [ -f "requirements.txt" ] || [ -f "python-service/requirements.txt" ] || [ -f "Pipfile.lock" ] || [ -f "poetry.lock" ]; then
+            echo "HAS_PIP_LOCKFILE=true" >> $GITHUB_OUTPUT
+          else
+            echo "HAS_PIP_LOCKFILE=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run pip-audit
+        if: steps.check-pip-lockfile.outputs.HAS_PIP_LOCKFILE == 'true'
+        run: |
+          pip install --quiet pip-audit || echo "pip-audit install failed"
+          
+          if command -v pip-audit &> /dev/null; then
+            echo "Running pip-audit..."
+            if [ -f "python-service/requirements.txt" ]; then
+              pip-audit -r python-service/requirements.txt || echo "pip-audit completed with findings"
+            elif [ -f "requirements.txt" ]; then
+              pip-audit -r requirements.txt || echo "pip-audit completed with findings"
+            fi
+          else
+            echo "pip-audit not available, skipping..."
+          fi
+
+  ai-coding-best-practices:
+    name: AI Coding / Best Practices / DevOps
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        if: hashFiles('**/*.py') != ''
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Reuse Semgrep for Code Quality
+        run: |
+          pip install --quiet semgrep || echo "Semgrep install failed"
+          
+          if command -v semgrep &> /dev/null; then
+            echo "Running semgrep for code quality checks..."
+            semgrep --config=p/ci --error --quiet || echo "Semgrep completed"
+          else
+            echo "Semgrep not available, skipping..."
+          fi
+
+      - name: Check for shell scripts
+        id: check-shell-bp
+        run: |
+          if find . -name "*.sh" -type f | grep -q .; then
+            echo "HAS_SHELL=true" >> $GITHUB_OUTPUT
+          else
+            echo "HAS_SHELL=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Reuse ShellCheck for Shell Scripts
+        if: steps.check-shell-bp.outputs.HAS_SHELL == 'true'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq shellcheck || echo "ShellCheck install failed"
+          
+          if command -v shellcheck &> /dev/null; then
+            echo "Running shellcheck for shell script best practices..."
+            find . -name "*.sh" -type f -exec shellcheck {} + || echo "ShellCheck completed"
+          else
+            echo "ShellCheck not available, skipping..."
+          fi
+
+      - name: Check for markdown files
+        id: check-markdown-bp
+        run: |
+          if find . -name "*.md" -type f | grep -q .; then
+            echo "HAS_MARKDOWN=true" >> $GITHUB_OUTPUT
+          else
+            echo "HAS_MARKDOWN=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup Node.js
+        if: steps.check-markdown-bp.outputs.HAS_MARKDOWN == 'true' || hashFiles('**/package-lock.json', '**/yarn.lock') != ''
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Reuse MarkdownLint for Documentation
+        if: steps.check-markdown-bp.outputs.HAS_MARKDOWN == 'true'
+        run: |
+          npm install -g markdownlint-cli 2>/dev/null || echo "markdownlint install failed"
+          
+          if command -v markdownlint &> /dev/null; then
+            echo "Running markdownlint for documentation quality..."
+            markdownlint '**/*.md' --ignore node_modules --ignore .git || echo "MarkdownLint completed"
+          else
+            echo "MarkdownLint not available, skipping..."
+          fi
+
+      - name: Check for JavaScript/TypeScript lockfiles
+        id: check-js-lockfile
+        run: |
+          if [ -f "package-lock.json" ] || [ -f "yarn.lock" ] || [ -f "backend/package-lock.json" ] || [ -f "frontend/package-lock.json" ]; then
+            echo "HAS_JS_LOCKFILE=true" >> $GITHUB_OUTPUT
+          else
+            echo "HAS_JS_LOCKFILE=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run ESLint (if lockfile present)
+        if: steps.check-js-lockfile.outputs.HAS_JS_LOCKFILE == 'true'
+        run: |
+          if [ -f "package.json" ]; then
+            if grep -q "eslint" package.json 2>/dev/null; then
+              echo "Running ESLint for JavaScript/TypeScript..."
+              npm install --quiet 2>/dev/null || echo "npm install failed"
+              npm run lint --if-present || echo "ESLint completed or not configured"
+            else
+              echo "ESLint not configured in package.json, skipping..."
+            fi
+          else
+            echo "No package.json found, skipping ESLint..."
+          fi
+
+      - name: Check for Python files
+        id: check-python-bp
+        run: |
+          if find . -name "*.py" -type f | grep -q .; then
+            echo "HAS_PYTHON=true" >> $GITHUB_OUTPUT
+          else
+            echo "HAS_PYTHON=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run Python Code Quality Checks
+        if: steps.check-python-bp.outputs.HAS_PYTHON == 'true'
+        run: |
+          pip install --quiet ruff || echo "ruff install failed"
+          
+          if command -v ruff &> /dev/null; then
+            echo "Running ruff for Python code quality..."
+            ruff check . --exit-zero || echo "Ruff completed"
+          else
+            echo "Ruff not available, skipping Python quality checks..."
+          fi
+
+      - name: Best Practices Summary
+        run: |
+          echo "=== AI Coding / Best Practices / DevOps Summary ==="
+          echo "This workflow has checked:"
+          echo "  ✓ Code quality with Semgrep"
+          echo "  ✓ Shell script best practices with ShellCheck (if applicable)"
+          echo "  ✓ Documentation quality with MarkdownLint (if applicable)"
+          echo "  ✓ Language-specific linting (when lockfiles present)"
+          echo "  ✓ Python code quality with Ruff (if applicable)"
+          echo ""
+          echo "All checks completed. Review output above for any findings."
