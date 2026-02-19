@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres-ai-starter:
+    image: postgres:15-alpine
+    container_name: ai-starter-postgres
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-ai_starter}
+    volumes:
+      - ai-starter-postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - ai-starter-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # FastAPI Backend
+  ai-starter-backend:
+    build:
+      context: ./ai-starter-backend
+      dockerfile: Dockerfile
+    container_name: ai-starter-backend
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@postgres-ai-starter:5432/${DB_NAME:-ai_starter}
+      JWT_SECRET: ${JWT_SECRET:-your-secret-key-change-in-production-min-32-characters}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-3600}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o}
+      USE_LOCAL_MODEL: ${USE_LOCAL_MODEL:-true}
+    ports:
+      - "8001:8000"
+    depends_on:
+      postgres-ai-starter:
+        condition: service_healthy
+    networks:
+      - ai-starter-network
+    restart: unless-stopped
+
+  # Next.js Frontend
+  ai-starter-frontend:
+    build:
+      context: ./ai-starter-frontend
+      dockerfile: Dockerfile
+    container_name: ai-starter-frontend
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8001}
+    ports:
+      - "3001:3000"
+    depends_on:
+      - ai-starter-backend
+    networks:
+      - ai-starter-network
+    restart: unless-stopped
+
+volumes:
+  ai-starter-postgres-data:
+
+networks:
+  ai-starter-network:
+    driver: bridge
