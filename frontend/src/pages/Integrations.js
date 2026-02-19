@@ -1,36 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-
-const integrationsAPI = {
-  getAll: (params) => axios.get(`${API_BASE_URL}/integrations`, { 
-    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-    params
-  }),
-  getById: (id) => axios.get(`${API_BASE_URL}/integrations/${id}`, { 
-    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-  }),
-  create: (data) => axios.post(`${API_BASE_URL}/integrations`, data, { 
-    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-  }),
-  update: (id, data) => axios.put(`${API_BASE_URL}/integrations/${id}`, data, { 
-    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-  }),
-  delete: (id) => axios.delete(`${API_BASE_URL}/integrations/${id}`, { 
-    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-  }),
-  test: (id) => axios.post(`${API_BASE_URL}/integrations/${id}/test`, {}, { 
-    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-  }),
-  send: (id, predictionId) => axios.post(`${API_BASE_URL}/integrations/${id}/send`, 
-    { predictionId }, 
-    { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
-  ),
-  getPlatforms: () => axios.get(`${API_BASE_URL}/integrations/platforms`, { 
-    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-  })
-};
+import { integrationsAPI } from '../services/api';
 
 const Integrations = () => {
   const [integrations, setIntegrations] = useState([]);

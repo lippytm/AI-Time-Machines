@@ -58,15 +58,9 @@ const Predictions = () => {
 
   const handleExport = async (id, format) => {
     try {
-      const token = localStorage.getItem('token');
-      const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-      const url = `${API_BASE_URL}/predictions/${id}/export?format=${format}`;
+      const response = await predictionsAPI.export(id, format);
       
-      const response = await fetch(url, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      
-      const blob = await response.blob();
+      const blob = response.data;
       const downloadUrl = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = downloadUrl;
