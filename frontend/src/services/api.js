@@ -66,6 +66,30 @@ export const predictionsAPI = {
   getById: (id) => api.get(`/predictions/${id}`),
   create: (data) => api.post('/predictions', data),
   delete: (id) => api.delete(`/predictions/${id}`),
+  export: (id, format) => api.get(`/predictions/${id}/export`, { params: { format }, responseType: 'blob' }),
+};
+
+// AI Tools API
+export const aiToolsAPI = {
+  getAll: (params) => api.get('/aitools', { params }),
+  getById: (id) => api.get(`/aitools/${id}`),
+  create: (data) => api.post('/aitools', data),
+  update: (id, data) => api.put(`/aitools/${id}`, data),
+  delete: (id) => api.delete(`/aitools/${id}`),
+  getCategories: () => api.get('/aitools/categories'),
+  getTypes: () => api.get('/aitools/types'),
+};
+
+// Integrations API
+export const integrationsAPI = {
+  getAll: (params) => api.get('/integrations', { params }),
+  getById: (id) => api.get(`/integrations/${id}`),
+  create: (data) => api.post('/integrations', data),
+  update: (id, data) => api.put(`/integrations/${id}`, data),
+  delete: (id) => api.delete(`/integrations/${id}`),
+  test: (id) => api.post(`/integrations/${id}/test`),
+  send: (id, predictionId) => api.post(`/integrations/${id}/send`, { predictionId }),
+  getPlatforms: () => api.get('/integrations/platforms'),
 };
 
 export default api;

@@ -1,32 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-
-const aiToolsAPI = {
-  getAll: (params) => axios.get(`${API_BASE_URL}/aitools`, { 
-    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-    params
-  }),
-  getById: (id) => axios.get(`${API_BASE_URL}/aitools/${id}`, { 
-    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-  }),
-  create: (data) => axios.post(`${API_BASE_URL}/aitools`, data, { 
-    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-  }),
-  update: (id, data) => axios.put(`${API_BASE_URL}/aitools/${id}`, data, { 
-    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-  }),
-  delete: (id) => axios.delete(`${API_BASE_URL}/aitools/${id}`, { 
-    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-  }),
-  getCategories: () => axios.get(`${API_BASE_URL}/aitools/categories`, { 
-    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-  }),
-  getTypes: () => axios.get(`${API_BASE_URL}/aitools/types`, { 
-    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-  })
-};
+import { aiToolsAPI } from '../services/api';
 
 const AITools = () => {
   const [aiTools, setAITools] = useState([]);
