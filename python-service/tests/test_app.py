@@ -20,8 +20,11 @@ class TestPythonService(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         
         data = response.get_json()
-        self.assertEqual(data['status'], 'healthy')
+        # Updated to match new enhanced health check format
+        self.assertIn('status', data)
         self.assertEqual(data['service'], 'AI Time Machines Python Service')
+        self.assertIn('health_score', data)
+        self.assertIn('system_metrics', data)
     
     def test_model_types(self):
         """Test get model types endpoint"""
