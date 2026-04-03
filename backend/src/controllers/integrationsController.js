@@ -283,6 +283,12 @@ const getPlatforms = async (req, res) => {
         features: ['notebooks', 'documentation', 'visualization']
       },
       { 
+        value: 'base44', 
+        label: 'Base44',
+        description: 'No-code app builder platform',
+        features: ['webhooks', 'api', 'automation', 'app-building']
+      },
+      { 
         value: 'webhook', 
         label: 'Custom Webhook',
         description: 'Generic webhook integration',
@@ -336,6 +342,11 @@ function formatPredictionForPlatform(platform, prediction) {
       return {
         notebook_data: baseData,
         format: 'moltbook'
+      };
+    case 'base44':
+      return {
+        prediction_data: baseData,
+        format: 'base44'
       };
     default:
       return baseData;

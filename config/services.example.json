@@ -38,6 +38,11 @@
         "obtain_from": "OpenClaw dashboard"
       },
       {
+        "name": "BASE44_API_KEY",
+        "description": "Base44 API key for no-code app builder platform",
+        "obtain_from": "Base44 platform settings"
+      },
+      {
         "name": "GITHUB_PAT",
         "description": "GitHub Personal Access Token (only if cross-repo API calls needed)",
         "obtain_from": "GitHub Settings > Developer settings > Personal access tokens"
@@ -78,6 +83,11 @@
         "name": "SERVICE_BASE_URL_MOLTBOT",
         "description": "Base URL for Moltbot API (matches MOLTBOT_API_KEY)",
         "default": "https://api.moltbot.io"
+      },
+      {
+        "name": "SERVICE_BASE_URL_BASE44",
+        "description": "Base URL for Base44 API (matches BASE44_API_KEY)",
+        "default": "https://api.base44.com"
       }
     ]
   },
@@ -108,6 +118,13 @@
       "description": "Moltbook interactive notebook platform",
       "endpoints": [
         "/api/integrations/webhooks/moltbook"
+      ],
+      "documentation": "See INTEGRATIONS.md for detailed setup"
+    },
+    "base44": {
+      "description": "Base44 no-code app builder platform",
+      "endpoints": [
+        "/api/integrations/webhooks/base44"
       ],
       "documentation": "See INTEGRATIONS.md for detailed setup"
     }

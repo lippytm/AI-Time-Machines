@@ -76,6 +76,23 @@ AI-Time-Machines now supports cross-platform connectivity, allowing you to integ
 }
 ```
 
+### 5. Base44
+**Type:** No-Code App Builder Platform  
+**Use Case:** Integrate predictions into custom no-code applications and workflows  
+**Features:**
+- Webhook support for real-time updates
+- API-based data ingestion
+- Automation triggers
+
+**Configuration:**
+```json
+{
+  "platform": "base44",
+  "apiKey": "your-base44-api-key",
+  "webhookUrl": "https://api.base44.com/webhook"
+}
+```
+
 ## API Endpoints
 
 ### Integrations Management
@@ -152,6 +169,7 @@ Authorization: Bearer {token}
 - `botbuilders` - BotBuilders-specific format
 - `openclaw` - OpenClaw analytics format
 - `moltbook` - Moltbook notebook format
+- `base44` - Base44 app builder format
 
 ## Export Format Examples
 
