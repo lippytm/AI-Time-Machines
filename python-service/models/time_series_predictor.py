@@ -2,7 +2,6 @@ import joblib
 import numpy as np
 from models.lstm_model import LSTMModel
 
-
 class TimeSeriesPredictor:
     """Unified interface for different time series models"""
 
@@ -112,7 +111,6 @@ class TimeSeriesPredictor:
                 }
 
             # Evaluate model on recent data using mean absolute error
-            import numpy as np  # noqa: PLC0415
             scaler = self.model.scaler
             seq_len = self.model.sequence_length
 

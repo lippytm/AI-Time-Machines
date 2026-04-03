@@ -101,10 +101,10 @@ def train_model():
                     json={'status': 'failed'},
                     timeout=10
                 )
-        except Exception:
-            pass
+        except Exception as notify_err:
+            logger.warning('Failed to notify backend of training failure: %s', str(notify_err))
 
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': 'Training failed. Please check server logs.'}), 500
 
 @app.route('/api/predict', methods=['POST'])
 def generate_prediction():
@@ -140,7 +140,7 @@ def generate_prediction():
 
     except Exception as e:
         logger.error('Prediction failed: %s', str(e))
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': 'Prediction failed. Please check server logs.'}), 500
 
 @app.route('/api/monitor', methods=['POST'])
 def monitor_model():
@@ -173,14 +173,20 @@ def monitor_model():
         if len(recent_data) < 2:
             return jsonify({'error': 'At least 2 recent data points required for drift detection'}), 400
 
-        if not os.path.exists(model_path):
+        # Validate model_path is within the allowed storage directory (prevent path traversal)
+        allowed_dir = os.path.realpath(MODEL_STORAGE_PATH)
+        resolved_path = os.path.realpath(model_path)
+        if not resolved_path.startswith(allowed_dir + os.sep) and resolved_path != allowed_dir:
+            return jsonify({'error': 'Invalid model path'}), 400
+
+        if not os.path.exists(resolved_path):
             return jsonify({'error': 'Model file not found'}), 404
 
         logger.info('Running drift detection for model %s', model_id)
 
         # Load model and evaluate on recent data
         predictor = TimeSeriesPredictor(model_type=model_type)
-        predictor.load(model_path)
+        predictor.load(resolved_path)
 
         drift_result = predictor.detect_drift(
             recent_data=recent_data,
@@ -218,7 +224,7 @@ def monitor_model():
 
     except Exception as e:
         logger.error('Monitor endpoint error: %s', str(e))
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': 'Monitor check failed. Please check server logs.'}), 500
 
 @app.route('/api/models/types', methods=['GET'])
 def get_model_types():

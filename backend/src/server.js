@@ -23,8 +23,12 @@ app.use(cors({
   credentials: true
 }));
 
-// Body parsing middleware
-app.use(express.json());
+// Body parsing middleware - capture raw body for webhook signature verification
+app.use(express.json({
+  verify: (req, _res, buf) => {
+    req.rawBody = buf.toString('utf8');
+  }
+}));
 app.use(express.urlencoded({ extended: true }));
 
 // Logging middleware
@@ -102,11 +106,12 @@ const shutdown = (signal) => {
     console.log('✅ Server closed.');
     process.exit(0);
   });
-  // Force exit after 10 seconds if server hasn't closed
+  // Force exit after configurable timeout if server hasn't closed
+  const timeoutMs = parseInt(process.env.SHUTDOWN_TIMEOUT_MS || '10000', 10);
   setTimeout(() => {
     console.error('⚠️  Forced shutdown after timeout.');
     process.exit(1);
-  }, 10000).unref();
+  }, timeoutMs).unref();
 };
 
 process.on('SIGTERM', () => shutdown('SIGTERM'));

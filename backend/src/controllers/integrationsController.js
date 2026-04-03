@@ -243,10 +243,12 @@ const receiveWebhook = async (req, res) => {
       if (!signature) {
         return res.status(401).json({ error: { message: 'Missing webhook signature' } });
       }
+      const rawBody = req.rawBody || JSON.stringify(webhookData);
       const hmac = crypto.createHmac('sha256', webhookSecret);
-      const rawBody = JSON.stringify(webhookData);
       const expected = `sha256=${hmac.update(rawBody).digest('hex')}`;
-      if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {
+      const sigBuf = Buffer.from(signature.padEnd(expected.length));
+      const expBuf = Buffer.from(expected);
+      if (sigBuf.length !== expBuf.length || !crypto.timingSafeEqual(sigBuf, expBuf)) {
         return res.status(401).json({ error: { message: 'Invalid webhook signature' } });
       }
     }
