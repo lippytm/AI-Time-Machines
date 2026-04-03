@@ -37,7 +37,7 @@ router.post(
   createLimiter,
   [
     body('name').notEmpty().trim().isLength({ min: 1, max: 255 }),
-    body('platform').notEmpty().isIn(['manychat', 'botbuilders', 'openclaw', 'moltbook', 'webhook', 'other']),
+    body('platform').notEmpty().isIn(['manychat', 'botbuilders', 'openclaw', 'moltbook', 'chatgpt', 'grok', 'replit', 'webhook', 'other']),
     body('description').optional().trim(),
     body('apiKey').optional().trim(),
     body('apiSecret').optional().trim(),

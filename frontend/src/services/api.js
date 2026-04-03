@@ -92,4 +92,11 @@ export const integrationsAPI = {
   getPlatforms: () => api.get('/integrations/platforms'),
 };
 
+// Monetization API
+export const monetizationAPI = {
+  getPlans: () => api.get('/monetization/plans'),
+  getOpportunities: () => api.get('/monetization/opportunities'),
+  getRevenueSummary: () => api.get('/monetization/summary'),
+};
+
 export default api;

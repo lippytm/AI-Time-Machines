@@ -55,6 +55,12 @@ const Layout = () => {
                 >
                   Integrations
                 </Link>
+                <Link
+                  to="/monetization"
+                  className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/monetization')}`}
+                >
+                  💰 Monetize
+                </Link>
               </div>
             </div>
             

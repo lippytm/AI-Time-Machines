@@ -219,7 +219,129 @@ function exportForMoltbook(prediction) {
 }
 
 /**
- * Escape XML special characters
+ * Export for ChatGPT (OpenAI) format
+ */
+function exportForChatGPT(prediction) {
+  return {
+    model: 'gpt-4',
+    messages: [
+      {
+        role: 'system',
+        content: 'You are an AI time-series analysis assistant. Provide insights on the following prediction data.'
+      },
+      {
+        role: 'user',
+        content: `Analyze this time-series prediction:\n- Prediction ID: ${prediction.id}\n- Horizon: ${prediction.horizon} steps\n- Predicted values: ${JSON.stringify(prediction.predictions)}\n- Confidence intervals: ${JSON.stringify(prediction.confidence)}`
+      }
+    ],
+    prediction_data: {
+      id: prediction.id,
+      modelId: prediction.modelId,
+      horizon: prediction.horizon,
+      predictions: prediction.predictions,
+      confidence: prediction.confidence,
+      createdAt: prediction.createdAt
+    },
+    metadata: {
+      source: 'ai-time-machines',
+      format: 'chatgpt-v1'
+    }
+  };
+}
+
+/**
+ * Export for Grok (xAI) format
+ */
+function exportForGrok(prediction) {
+  return {
+    query: `Provide a detailed analysis of the following time-series forecast with ${prediction.horizon} steps ahead.`,
+    context: {
+      prediction_id: prediction.id,
+      model_id: prediction.modelId,
+      horizon: prediction.horizon,
+      predicted_values: prediction.predictions,
+      confidence_intervals: prediction.confidence,
+      generated_at: prediction.createdAt
+    },
+    stream: false,
+    metadata: {
+      source: 'ai-time-machines',
+      format: 'grok-v1'
+    }
+  };
+}
+
+/**
+ * Export for Replit format (deployable Python script)
+ */
+function exportForReplit(prediction) {
+  const scriptContent = [
+    '# AI Time Machines - Prediction Export for Replit',
+    '# Run this script to visualize and analyze your prediction',
+    '',
+    'import json',
+    'import os',
+    '',
+    '# Prediction data',
+    `prediction_id = "${prediction.id}"`,
+    `model_id = "${prediction.modelId}"`,
+    `horizon = ${prediction.horizon}`,
+    `predictions = ${JSON.stringify(prediction.predictions)}`,
+    `confidence = ${JSON.stringify(prediction.confidence || {})}`,
+    '',
+    'try:',
+    '    import matplotlib.pyplot as plt',
+    '    import numpy as np',
+    '    steps = list(range(len(predictions)))',
+    "    plt.figure(figsize=(12, 6))",
+    "    plt.plot(steps, predictions, 'b-o', label='Predictions', linewidth=2)",
+    "    if confidence.get('lower') and confidence.get('upper'):",
+    "        plt.fill_between(steps, confidence['lower'], confidence['upper'],",
+    "                         alpha=0.2, color='blue', label='Confidence Interval')",
+    "    plt.title(f'Time Series Forecast (Horizon: {horizon} steps)')",
+    "    plt.xlabel('Time Step')",
+    "    plt.ylabel('Predicted Value')",
+    "    plt.legend()",
+    "    plt.grid(True)",
+    "    plt.tight_layout()",
+    "    plt.savefig('prediction_plot.png')",
+    "    print('Plot saved to prediction_plot.png')",
+    "except ImportError:",
+    "    print('matplotlib not available. Install it with: pip install matplotlib numpy')",
+    '',
+    "print(f'Prediction {prediction_id}: {len(predictions)} values forecasted')",
+    "print(f'Values: {predictions}')"
+  ].join('\n');
+
+  return {
+    files: {
+      'main.py': scriptContent,
+      'prediction.json': JSON.stringify({
+        id: prediction.id,
+        modelId: prediction.modelId,
+        horizon: prediction.horizon,
+        predictions: prediction.predictions,
+        confidence: prediction.confidence,
+        createdAt: prediction.createdAt
+      }, null, 2),
+      'requirements.txt': 'matplotlib\nnumpy\n'
+    },
+    repl_config: {
+      language: 'python3',
+      entrypoint: 'main.py'
+    },
+    metadata: {
+      source: 'ai-time-machines',
+      format: 'replit-v1'
+    }
+  };
+}
+
+
+/**
+ * Escape XML special characters to prevent XML injection
+ * @param {*} str - The value to escape (non-strings are returned as-is)
+ * @returns {string|*} - Escaped string safe for inclusion in XML
  */
 function escapeXML(str) {
   if (typeof str !== 'string') return str;
@@ -250,6 +372,12 @@ function exportPrediction(prediction, format) {
       return exportForOpenClaw(prediction);
     case 'moltbook':
       return exportForMoltbook(prediction);
+    case 'chatgpt':
+      return exportForChatGPT(prediction);
+    case 'grok':
+      return exportForGrok(prediction);
+    case 'replit':
+      return exportForReplit(prediction);
     default:
       return exportToJSON(prediction);
   }
@@ -263,5 +391,8 @@ module.exports = {
   exportForManyChat,
   exportForBotBuilders,
   exportForOpenClaw,
-  exportForMoltbook
+  exportForMoltbook,
+  exportForChatGPT,
+  exportForGrok,
+  exportForReplit
 };

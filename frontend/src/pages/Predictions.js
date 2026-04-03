@@ -73,7 +73,10 @@ const Predictions = () => {
         manychat: 'json',
         botbuilders: 'json',
         openclaw: 'json',
-        moltbook: 'json'
+        moltbook: 'json',
+        chatgpt: 'json',
+        grok: 'json',
+        replit: 'json'
       };
       const extension = fileExtensions[format] || 'json';
       
@@ -180,6 +183,25 @@ const Predictions = () => {
                         className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
                       >
                         Moltbook Format
+                      </button>
+                      <hr className="my-1" />
+                      <button
+                        onClick={() => handleExport(prediction.id, 'chatgpt')}
+                        className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+                      >
+                        🤖 ChatGPT Format
+                      </button>
+                      <button
+                        onClick={() => handleExport(prediction.id, 'grok')}
+                        className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+                      >
+                        ⚡ Grok Format
+                      </button>
+                      <button
+                        onClick={() => handleExport(prediction.id, 'replit')}
+                        className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+                      >
+                        💻 Replit Format
                       </button>
                     </div>
                   </div>

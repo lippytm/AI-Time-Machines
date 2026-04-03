@@ -151,7 +151,10 @@ const exportPredictionData = async (req, res) => {
       manychat: 'application/json',
       botbuilders: 'application/json',
       openclaw: 'application/json',
-      moltbook: 'application/json'
+      moltbook: 'application/json',
+      chatgpt: 'application/json',
+      grok: 'application/json',
+      replit: 'application/json'
     };
 
     res.set('Content-Type', contentTypes[exportFormat] || 'application/json');
