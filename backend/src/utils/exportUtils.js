@@ -174,6 +174,21 @@ function exportForOpenClaw(prediction) {
 }
 
 /**
+ * Export for Base44 format (app builder platform)
+ */
+function exportForBase44(prediction) {
+  return {
+    prediction_id: prediction.id,
+    model_id: prediction.modelId,
+    horizon: prediction.horizon,
+    values: prediction.predictions,
+    confidence: prediction.confidence,
+    created_at: prediction.createdAt,
+    source: 'ai-time-machines'
+  };
+}
+
+/**
  * Export for Moltbook format (notebook platform)
  */
 function exportForMoltbook(prediction) {
@@ -250,6 +265,8 @@ function exportPrediction(prediction, format) {
       return exportForOpenClaw(prediction);
     case 'moltbook':
       return exportForMoltbook(prediction);
+    case 'base44':
+      return exportForBase44(prediction);
     default:
       return exportToJSON(prediction);
   }
@@ -263,5 +280,6 @@ module.exports = {
   exportForManyChat,
   exportForBotBuilders,
   exportForOpenClaw,
-  exportForMoltbook
+  exportForMoltbook,
+  exportForBase44
 };

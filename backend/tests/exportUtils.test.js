@@ -137,5 +137,15 @@ describe('Export Utils', () => {
       expect(result).toHaveProperty('metadata');
       expect(result.metadata).toHaveProperty('prediction_id', 'test-id');
     });
+
+    test('should export for Base44 format', () => {
+      const result = exportPrediction(mockPrediction, 'base44');
+      expect(result).toHaveProperty('prediction_id', 'test-id');
+      expect(result).toHaveProperty('model_id', 'model-id');
+      expect(result).toHaveProperty('horizon', 3);
+      expect(result).toHaveProperty('values');
+      expect(Array.isArray(result.values)).toBe(true);
+      expect(result).toHaveProperty('source', 'ai-time-machines');
+    });
   });
 });

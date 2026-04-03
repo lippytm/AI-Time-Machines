@@ -26,7 +26,7 @@ AI-Time-Machines is a comprehensive Full Stack platform that combines React, Nod
   - AI model training workflows
   - Prediction generation
   - AI tools and toolkits catalog
-  - Platform integrations (ManyChat, BotBuilders, OpenClaw, Moltbook)
+  - Platform integrations (ManyChat, BotBuilders, OpenClaw, Moltbook, Base44)
   - Multi-format data export (JSON, CSV, XML)
 
 ### AI/ML Service (Python + TensorFlow)
@@ -265,7 +265,7 @@ AI-Time-Machines/
 
 ### Export
 - `GET /api/predictions/:id/export?format={format}` - Export prediction
-  - Supported formats: `json`, `csv`, `xml`, `manychat`, `botbuilders`, `openclaw`, `moltbook`
+  - Supported formats: `json`, `csv`, `xml`, `manychat`, `botbuilders`, `openclaw`, `moltbook`, `base44`
 
 ## 🔌 Platform Integrations
 
@@ -275,6 +275,7 @@ AI-Time-Machines supports cross-platform connectivity with popular chatbot platf
 - **BotBuilders** - Multi-platform chatbot builder
 - **OpenClaw** - Analytics and automation platform
 - **Moltbook** - Interactive notebook platform
+- **Base44** - No-code app builder platform
 - **Custom Webhooks** - Generic webhook support
 
 For detailed integration documentation, see [INTEGRATIONS.md](INTEGRATIONS.md).
