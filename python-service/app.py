@@ -1,4 +1,5 @@
 import os
+import re
 import logging
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -167,26 +168,26 @@ def monitor_model():
         drift_threshold = float(data.get('driftThreshold', 0.05))
         auto_retrain = data.get('autoRetrain', False)
 
-        if not model_id or not model_path:
-            return jsonify({'error': 'modelId and modelPath are required'}), 400
+        if not model_id:
+            return jsonify({'error': 'modelId is required'}), 400
 
         if len(recent_data) < 2:
             return jsonify({'error': 'At least 2 recent data points required for drift detection'}), 400
 
-        # Validate model_path is within the allowed storage directory (prevent path traversal)
-        allowed_dir = os.path.realpath(MODEL_STORAGE_PATH)
-        resolved_path = os.path.realpath(model_path)
-        if not resolved_path.startswith(allowed_dir + os.sep) and resolved_path != allowed_dir:
-            return jsonify({'error': 'Invalid model path'}), 400
+        # Construct a safe path from model_id (ignore the user-supplied model_path to prevent
+        # path traversal). model_id is validated to contain only safe characters.
+        if not re.match(r'^[a-zA-Z0-9_\-]+$', model_id):
+            return jsonify({'error': 'Invalid modelId format'}), 400
+        safe_path = os.path.join(MODEL_STORAGE_PATH, f'{model_id}.pkl')
 
-        if not os.path.exists(resolved_path):
+        if not os.path.exists(safe_path):
             return jsonify({'error': 'Model file not found'}), 404
 
         logger.info('Running drift detection for model %s', model_id)
 
         # Load model and evaluate on recent data
         predictor = TimeSeriesPredictor(model_type=model_type)
-        predictor.load(resolved_path)
+        predictor.load(safe_path)
 
         drift_result = predictor.detect_drift(
             recent_data=recent_data,

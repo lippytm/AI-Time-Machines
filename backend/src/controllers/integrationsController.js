@@ -246,9 +246,11 @@ const receiveWebhook = async (req, res) => {
       const rawBody = req.rawBody || JSON.stringify(webhookData);
       const hmac = crypto.createHmac('sha256', webhookSecret);
       const expected = `sha256=${hmac.update(rawBody).digest('hex')}`;
-      const sigBuf = Buffer.from(signature.padEnd(expected.length));
-      const expBuf = Buffer.from(expected);
-      if (sigBuf.length !== expBuf.length || !crypto.timingSafeEqual(sigBuf, expBuf)) {
+      // Only compare equal-length buffers to maintain timing safety
+      if (signature.length !== expected.length) {
+        return res.status(401).json({ error: { message: 'Invalid webhook signature' } });
+      }
+      if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {
         return res.status(401).json({ error: { message: 'Invalid webhook signature' } });
       }
     }

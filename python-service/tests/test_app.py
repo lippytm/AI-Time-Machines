@@ -48,8 +48,19 @@ class TestPythonService(unittest.TestCase):
         """Monitor endpoint should return 400 when fewer than 2 data points are provided"""
         response = self.app.post('/api/monitor', json={
             'modelId': 'test-id',
-            'modelPath': '/tmp/nonexistent.pkl',
             'recentData': [{'timestamp': '2026-01-01', 'value': 1.0}],
+            'baselineMetrics': {'test_loss': 0.01}
+        })
+        self.assertEqual(response.status_code, 400)
+
+    def test_monitor_invalid_model_id(self):
+        """Monitor endpoint should return 400 for model IDs with invalid characters"""
+        response = self.app.post('/api/monitor', json={
+            'modelId': '../etc/passwd',
+            'recentData': [
+                {'timestamp': '2026-01-01', 'value': 1.0},
+                {'timestamp': '2026-01-02', 'value': 2.0}
+            ],
             'baselineMetrics': {'test_loss': 0.01}
         })
         self.assertEqual(response.status_code, 400)
@@ -57,8 +68,7 @@ class TestPythonService(unittest.TestCase):
     def test_monitor_model_not_found(self):
         """Monitor endpoint should return 404 when model file does not exist"""
         response = self.app.post('/api/monitor', json={
-            'modelId': 'test-id',
-            'modelPath': '/tmp/this_does_not_exist.pkl',
+            'modelId': 'nonexistent-model-12345',
             'recentData': [
                 {'timestamp': '2026-01-01', 'value': 1.0},
                 {'timestamp': '2026-01-02', 'value': 2.0}
