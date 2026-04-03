@@ -236,6 +236,21 @@ const receiveWebhook = async (req, res) => {
     const { platform } = req.params;
     const webhookData = req.body;
 
+    // Verify HMAC signature if a webhook secret is configured
+    const webhookSecret = process.env.WEBHOOK_SECRET;
+    if (webhookSecret) {
+      const signature = req.header('X-Webhook-Signature') || req.header('X-Hub-Signature-256');
+      if (!signature) {
+        return res.status(401).json({ error: { message: 'Missing webhook signature' } });
+      }
+      const hmac = crypto.createHmac('sha256', webhookSecret);
+      const rawBody = JSON.stringify(webhookData);
+      const expected = `sha256=${hmac.update(rawBody).digest('hex')}`;
+      if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {
+        return res.status(401).json({ error: { message: 'Invalid webhook signature' } });
+      }
+    }
+
     // Log webhook receipt
     console.log(`Received webhook from ${platform}:`, webhookData);
 

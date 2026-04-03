@@ -32,6 +32,40 @@ class TestPythonService(unittest.TestCase):
         self.assertIn('models', data)
         self.assertIsInstance(data['models'], list)
         self.assertGreater(len(data['models']), 0)
+        
+        types = [m['type'] for m in data['models']]
+        self.assertIn('lstm', types)
+        self.assertIn('gru', types)
+
+    def test_monitor_missing_fields(self):
+        """Monitor endpoint should return 400 when required fields are missing"""
+        response = self.app.post('/api/monitor', json={})
+        self.assertEqual(response.status_code, 400)
+        data = response.get_json()
+        self.assertIn('error', data)
+
+    def test_monitor_insufficient_data(self):
+        """Monitor endpoint should return 400 when fewer than 2 data points are provided"""
+        response = self.app.post('/api/monitor', json={
+            'modelId': 'test-id',
+            'modelPath': '/tmp/nonexistent.pkl',
+            'recentData': [{'timestamp': '2026-01-01', 'value': 1.0}],
+            'baselineMetrics': {'test_loss': 0.01}
+        })
+        self.assertEqual(response.status_code, 400)
+
+    def test_monitor_model_not_found(self):
+        """Monitor endpoint should return 404 when model file does not exist"""
+        response = self.app.post('/api/monitor', json={
+            'modelId': 'test-id',
+            'modelPath': '/tmp/this_does_not_exist.pkl',
+            'recentData': [
+                {'timestamp': '2026-01-01', 'value': 1.0},
+                {'timestamp': '2026-01-02', 'value': 2.0}
+            ],
+            'baselineMetrics': {'test_loss': 0.01}
+        })
+        self.assertEqual(response.status_code, 404)
 
 
 if __name__ == '__main__':

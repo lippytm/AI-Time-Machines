@@ -14,10 +14,9 @@ class TimeSeriesPredictor:
     def _initialize_model(self):
         """Initialize the appropriate model based on type"""
         if self.model_type == 'lstm':
-            self.model = LSTMModel()
+            self.model = LSTMModel(use_gru=False)
         elif self.model_type == 'gru':
-            # Similar to LSTM but using GRU layers
-            self.model = LSTMModel()  # Placeholder - would use GRU variant
+            self.model = LSTMModel(use_gru=True)
         elif self.model_type == 'arima':
             # Would use statsmodels ARIMA
             pass
@@ -80,6 +79,77 @@ class TimeSeriesPredictor:
         else:
             # Placeholder for other model types
             return [], {}
+
+    def detect_drift(self, recent_data, baseline_metrics, drift_threshold=0.05):
+        """Detect performance drift by comparing current loss against baseline.
+
+        Args:
+            recent_data: list of {timestamp, value} dicts – the new observations.
+            baseline_metrics: dict containing at least 'test_loss'.
+            drift_threshold: fractional increase in loss that triggers a drift alert.
+
+        Returns:
+            dict with drift_detected, current_loss, drift_score, and message.
+        """
+        if self.model is None:
+            raise ValueError("Model not initialized or loaded")
+
+        baseline_loss = float(baseline_metrics.get('test_loss', 0))
+
+        if self.model_type in ['lstm', 'gru']:
+            values = [
+                point['value'] if isinstance(point, dict) else point
+                for point in recent_data
+            ]
+
+            if len(values) <= self.model.sequence_length:
+                return {
+                    'drift_detected': False,
+                    'current_loss': None,
+                    'baseline_loss': baseline_loss,
+                    'drift_score': 0.0,
+                    'message': 'Not enough data points to evaluate drift'
+                }
+
+            # Evaluate model on recent data using mean absolute error
+            import numpy as np  # noqa: PLC0415
+            scaler = self.model.scaler
+            seq_len = self.model.sequence_length
+
+            scaled = scaler.transform(np.array(values).reshape(-1, 1))
+            X, y_true = [], []
+            for i in range(len(scaled) - seq_len):
+                X.append(scaled[i:i + seq_len])
+                y_true.append(scaled[i + seq_len, 0])
+
+            X = np.array(X)
+            y_true = np.array(y_true)
+            y_pred = self.model.model.predict(X, verbose=0).flatten()
+
+            current_loss = float(np.mean(np.abs(y_pred - y_true)))
+        else:
+            # Non-neural models: use a simple variance-based proxy
+            vals = [p['value'] if isinstance(p, dict) else p for p in recent_data]
+            current_loss = float(np.std(vals)) if len(vals) > 1 else 0.0
+
+        drift_score = (
+            (current_loss - baseline_loss) / baseline_loss
+            if baseline_loss > 0 else 0.0
+        )
+        drift_detected = drift_score > drift_threshold
+
+        return {
+            'drift_detected': drift_detected,
+            'current_loss': round(current_loss, 6),
+            'baseline_loss': round(baseline_loss, 6),
+            'drift_score': round(drift_score, 6),
+            'message': (
+                f'Drift detected: loss increased by {drift_score:.1%} '
+                f'(threshold {drift_threshold:.1%})'
+                if drift_detected
+                else 'No significant drift detected'
+            )
+        }
 
     def save(self, path):
         """Save the trained model"""

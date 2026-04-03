@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const axios = require('axios');
 
 const authRoutes = require('./routes/auth');
 const timeSeriesRoutes = require('./routes/timeSeries');
@@ -40,6 +41,29 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Aggregate status endpoint for autonomous monitoring
+app.get('/api/status', async (req, res) => {
+  const PYTHON_SERVICE_URL = process.env.PYTHON_SERVICE_URL || 'http://localhost:8000';
+  const checks = {
+    backend: { status: 'healthy', uptime: process.uptime() },
+    pythonService: { status: 'unknown' },
+    timestamp: new Date().toISOString()
+  };
+
+  try {
+    const pyResp = await axios.get(`${PYTHON_SERVICE_URL}/health`, { timeout: 3000 });
+    checks.pythonService = { status: 'healthy', details: pyResp.data };
+  } catch {
+    checks.pythonService = { status: 'unreachable' };
+  }
+
+  const allHealthy = Object.values(checks)
+    .filter(v => typeof v === 'object' && v.status)
+    .every(v => v.status === 'healthy');
+
+  res.status(allHealthy ? 200 : 503).json({ ...checks, overall: allHealthy ? 'healthy' : 'degraded' });
+});
+
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/timeseries', timeSeriesRoutes);
@@ -70,5 +94,22 @@ const server = app.listen(PORT, () => {
   console.log(`🚀 Backend server running on port ${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
 });
+
+// Graceful shutdown for autonomous/containerised operation
+const shutdown = (signal) => {
+  console.log(`\n${signal} received. Closing server gracefully...`);
+  server.close(() => {
+    console.log('✅ Server closed.');
+    process.exit(0);
+  });
+  // Force exit after 10 seconds if server hasn't closed
+  setTimeout(() => {
+    console.error('⚠️  Forced shutdown after timeout.');
+    process.exit(1);
+  }, 10000).unref();
+};
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
 
 module.exports = { app, server };
