@@ -106,7 +106,7 @@ const Integrations = () => {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Platform Integrations</h1>
-          <p className="text-gray-600 mt-2">Connect with ManyChat, BotBuilders, OpenClaw, Moltbook and more</p>
+          <p className="text-gray-600 mt-2">Connect with ChatGPT, Grok, Replit, ManyChat, BotBuilders, and more</p>
         </div>
         <button
           onClick={() => setShowModal(true)}

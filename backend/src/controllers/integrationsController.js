@@ -261,14 +261,14 @@ const getPlatforms = async (req, res) => {
       { 
         value: 'manychat', 
         label: 'ManyChat',
-        description: 'Facebook Messenger chatbot platform',
-        features: ['webhooks', 'api', 'automation']
+        description: 'Facebook Messenger chatbot platform for automated marketing and sales',
+        features: ['webhooks', 'api', 'automation', 'monetization']
       },
       { 
         value: 'botbuilders', 
         label: 'BotBuilders',
-        description: 'Multi-platform chatbot builder',
-        features: ['webhooks', 'api', 'nlp', 'automation']
+        description: 'Multi-platform chatbot builder for SMS, WhatsApp, and Telegram',
+        features: ['webhooks', 'api', 'nlp', 'automation', 'monetization']
       },
       { 
         value: 'openclaw', 
@@ -281,6 +281,24 @@ const getPlatforms = async (req, res) => {
         label: 'Moltbook',
         description: 'Interactive notebook and documentation platform',
         features: ['notebooks', 'documentation', 'visualization']
+      },
+      {
+        value: 'chatgpt',
+        label: 'ChatGPT (OpenAI)',
+        description: 'OpenAI ChatGPT integration for AI-powered conversations and predictions',
+        features: ['ai', 'nlp', 'predictions', 'api', 'monetization']
+      },
+      {
+        value: 'grok',
+        label: 'Grok (xAI)',
+        description: 'xAI Grok integration for real-time AI analysis and forecasting',
+        features: ['ai', 'real-time', 'analysis', 'api', 'monetization']
+      },
+      {
+        value: 'replit',
+        label: 'Replit',
+        description: 'Replit integration for deploying and monetizing AI apps in the cloud',
+        features: ['deployment', 'cloud', 'collaboration', 'monetization']
       },
       { 
         value: 'webhook', 
@@ -336,6 +354,38 @@ function formatPredictionForPlatform(platform, prediction) {
       return {
         notebook_data: baseData,
         format: 'moltbook'
+      };
+    case 'chatgpt':
+      return {
+        model: 'gpt-4',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are an AI time-series analysis assistant.'
+          },
+          {
+            role: 'user',
+            content: `Analyze this prediction data: ${JSON.stringify(baseData)}`
+          }
+        ],
+        prediction_context: baseData,
+        format: 'chatgpt'
+      };
+    case 'grok':
+      return {
+        query: `Analyze prediction: ${JSON.stringify(baseData)}`,
+        context: baseData,
+        stream: false,
+        format: 'grok'
+      };
+    case 'replit':
+      return {
+        repl_data: baseData,
+        deploy_config: {
+          language: 'python',
+          entry: 'main.py'
+        },
+        format: 'replit'
       };
     default:
       return baseData;

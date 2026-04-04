@@ -10,6 +10,7 @@ const modelsRoutes = require('./routes/models');
 const predictionsRoutes = require('./routes/predictions');
 const aiToolsRoutes = require('./routes/aiTools');
 const integrationsRoutes = require('./routes/integrations');
+const monetizationRoutes = require('./routes/monetization');
 
 const app = express();
 
@@ -47,6 +48,7 @@ app.use('/api/models', modelsRoutes);
 app.use('/api/predictions', predictionsRoutes);
 app.use('/api/aitools', aiToolsRoutes);
 app.use('/api/integrations', integrationsRoutes);
+app.use('/api/monetization', monetizationRoutes);
 
 // Error handling middleware
 app.use((err, req, res, _next) => {

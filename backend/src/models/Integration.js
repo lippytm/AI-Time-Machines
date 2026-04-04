@@ -21,6 +21,9 @@ const Integration = sequelize.define('Integration', {
       'botbuilders',
       'openclaw',
       'moltbook',
+      'chatgpt',
+      'grok',
+      'replit',
       'webhook',
       'other'
     ),

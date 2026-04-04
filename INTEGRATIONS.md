@@ -2,11 +2,71 @@
 
 ## Overview
 
-AI-Time-Machines now supports cross-platform connectivity, allowing you to integrate your time-series predictions with popular chatbot platforms, analytics tools, and notebook environments.
+AI-Time-Machines supports cross-platform connectivity, allowing you to integrate your time-series predictions with AI assistants, cloud development platforms, chatbot builders, analytics tools, and notebook environments.
 
 ## Supported Platforms
 
-### 1. ManyChat
+### 1. ChatGPT (OpenAI)
+**Type:** AI Assistant  
+**Use Case:** Export predictions into OpenAI ChatGPT conversations for AI-powered analysis and insights  
+**Features:**
+- Direct OpenAI message format export
+- System prompt configuration for time-series analysis
+- Revenue opportunity: sell ChatGPT-powered forecast bots
+
+**Configuration:**
+```json
+{
+  "platform": "chatgpt",
+  "apiKey": "your-openai-api-key"
+}
+```
+
+**Environment Variable:** `OPENAI_API_KEY`
+
+---
+
+### 2. Grok (xAI)
+**Type:** AI Assistant  
+**Use Case:** Send predictions to xAI Grok for real-time analysis and forecasting reports  
+**Features:**
+- Grok query format export with prediction context
+- Real-time analysis capabilities
+- Revenue opportunity: sell premium Grok-powered analysis reports
+
+**Configuration:**
+```json
+{
+  "platform": "grok",
+  "apiKey": "your-grok-api-key"
+}
+```
+
+**Environment Variable:** `GROK_API_KEY`
+
+---
+
+### 3. Replit
+**Type:** Cloud Development Platform  
+**Use Case:** Deploy AI Time Machines prediction tools as standalone apps on Replit  
+**Features:**
+- Generates deployable Python script with visualization
+- Includes `requirements.txt` and `prediction.json`
+- Revenue opportunity: publish and sell AI apps on Replit marketplace
+
+**Configuration:**
+```json
+{
+  "platform": "replit",
+  "apiKey": "your-replit-api-token"
+}
+```
+
+**Environment Variable:** `REPLIT_API_TOKEN`
+
+---
+
+### 4. ManyChat
 **Type:** Chatbot Platform  
 **Use Case:** Send prediction updates to Facebook Messenger chatbots  
 **Features:**
@@ -23,7 +83,7 @@ AI-Time-Machines now supports cross-platform connectivity, allowing you to integ
 }
 ```
 
-### 2. BotBuilders
+### 5. BotBuilders
 **Type:** Multi-Platform Chatbot Builder  
 **Use Case:** Automate prediction notifications across multiple messaging platforms  
 **Features:**
@@ -40,7 +100,7 @@ AI-Time-Machines now supports cross-platform connectivity, allowing you to integ
 }
 ```
 
-### 3. OpenClaw
+### 6. OpenClaw
 **Type:** Analytics & Automation Platform  
 **Use Case:** Feed predictions into analytics pipelines and automation workflows  
 **Features:**
@@ -57,7 +117,7 @@ AI-Time-Machines now supports cross-platform connectivity, allowing you to integ
 }
 ```
 
-### 4. Moltbook
+### 7. Moltbook
 **Type:** Interactive Notebook Platform  
 **Use Case:** Embed predictions in interactive notebooks for analysis and visualization  
 **Features:**
