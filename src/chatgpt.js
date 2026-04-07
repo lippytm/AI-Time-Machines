@@ -20,8 +20,8 @@ class ChatGPT {
       apiKey: key,
     });
 
-    // Default model for ChatGPT (using GPT-4 for Pro account features)
-    this.model = 'gpt-4';
+    // Default model – GPT-4o provides the best balance of speed and capability
+    this.model = 'gpt-4o';
   }
 
   /**
@@ -74,8 +74,84 @@ class ChatGPT {
   }
 
   /**
+   * Stream a response chunk-by-chunk (useful for long autonomous responses)
+   * @param {string} message - The message to send
+   * @param {Function} onChunk - Callback invoked with each text chunk
+   * @param {Object} options - Additional options
+   * @returns {Promise<string>} - The full assembled response
+   */
+  async streamChat(message, onChunk, options = {}) {
+    try {
+      const stream = await this.client.chat.completions.create({
+        model: options.model || this.model,
+        messages: [{ role: 'user', content: message }],
+        temperature: options.temperature || 0.7,
+        max_tokens: options.max_tokens || 2000,
+        stream: true,
+        ...options,
+      });
+
+      let fullResponse = '';
+      for await (const chunk of stream) {
+        const delta = chunk.choices[0]?.delta?.content || '';
+        if (delta) {
+          fullResponse += delta;
+          if (typeof onChunk === 'function') onChunk(delta);
+        }
+      }
+      return fullResponse;
+    } catch (error) {
+      throw new Error(`ChatGPT Stream Error: ${error.message}`);
+    }
+  }
+
+  /**
+   * Autonomously analyse a time series dataset and return structured insights
+   * @param {Array<{timestamp: string, value: number}>} data - Time series data points
+   * @param {Object} options - Additional options (model, maxTokens)
+   * @returns {Promise<Object>} - Parsed JSON with trends, anomalies, and recommendations
+   */
+  async analyzeTimeSeries(data, options = {}) {
+    const summary = {
+      count: data.length,
+      first: data[0],
+      last: data[data.length - 1],
+      sample: data.slice(0, 5),
+    };
+
+    const prompt = [
+      'You are an autonomous time-series analysis agent.',
+      'Analyse the following time series dataset and respond ONLY with a valid JSON object.',
+      '',
+      'Dataset summary:',
+      JSON.stringify(summary, null, 2),
+      '',
+      'Return JSON with these keys:',
+      '  trend        - "increasing", "decreasing", or "stable"',
+      '  seasonality  - detected seasonality description or null',
+      '  anomalies    - array of anomaly descriptions (empty if none)',
+      '  insights     - array of key observations (up to 5)',
+      '  recommendations - array of actionable suggestions (up to 3)',
+    ].join('\n');
+
+    try {
+      const raw = await this.chat(prompt, {
+        model: options.model || this.model,
+        temperature: 0.2,
+        max_tokens: options.maxTokens || 800,
+      });
+
+      // Strip markdown code fences if present
+      const cleaned = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+      return JSON.parse(cleaned);
+    } catch (error) {
+      throw new Error(`Time series analysis failed: ${error.message}`);
+    }
+  }
+
+  /**
    * Set the default model to use
-   * @param {string} model - The model name (e.g., 'gpt-4', 'gpt-3.5-turbo')
+   * @param {string} model - The model name (e.g., 'gpt-4o', 'gpt-4-turbo')
    */
   setModel(model) {
     this.model = model;
@@ -87,10 +163,11 @@ class ChatGPT {
    */
   getAvailableModels() {
     return [
+      'gpt-4o',
+      'gpt-4o-mini',
+      'gpt-4-turbo',
       'gpt-4',
-      'gpt-4-turbo-preview',
       'gpt-3.5-turbo',
-      'gpt-3.5-turbo-16k',
     ];
   }
 }
