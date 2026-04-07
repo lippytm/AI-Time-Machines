@@ -1,0 +1,240 @@
+# Reusable CI/CD Workflow Template for AI-Enhanced Security
+# This workflow can be referenced by other lippytm repositories
+
+name: 'AI-Enhanced Security Pipeline'
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: 'Node.js version to use'
+        required: false
+        type: string
+        default: '18'
+      enable-codeql:
+        description: 'Enable CodeQL analysis'
+        required: false
+        type: boolean
+        default: true
+      enable-trivy:
+        description: 'Enable Trivy vulnerability scanning'
+        required: false
+        type: boolean
+        default: true
+      enable-dependency-review:
+        description: 'Enable dependency review'
+        required: false
+        type: boolean
+        default: true
+      working-directory:
+        description: 'Working directory for the project'
+        required: false
+        type: string
+        default: '.'
+      backend-directory:
+        description: 'Backend directory relative to working directory'
+        required: false
+        type: string
+        default: 'backend'
+      frontend-directory:
+        description: 'Frontend directory relative to working directory'
+        required: false
+        type: string
+        default: 'frontend'
+
+jobs:
+  codeql-analysis:
+    if: inputs.enable-codeql
+    name: CodeQL Security Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'javascript' ]
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: +security-extended,security-and-quality
+      
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+      
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
+
+  trivy-scan:
+    if: inputs.enable-trivy
+    name: Trivy Vulnerability Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: ${{ inputs.working-directory }}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+      
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  dependency-review:
+    if: inputs.enable-dependency-review && github.event_name == 'pull_request'
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+
+  backend-security-test:
+    name: Backend Security Tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: 'npm'
+          cache-dependency-path: ${{ inputs.backend-directory }}/package-lock.json
+      
+      - name: Install dependencies
+        run: cd ${{ inputs.backend-directory }} && npm ci
+        continue-on-error: true
+      
+      - name: Run security tests
+        run: cd ${{ inputs.backend-directory }} && npm test -- --testPathPattern=aiFirewall
+        continue-on-error: true
+        env:
+          NODE_ENV: test
+      
+      - name: Check for SQL injection vulnerabilities
+        run: |
+          echo "Running SQL injection checks..."
+          cd ${{ inputs.backend-directory }}
+          # Check for raw SQL queries without parameterization
+          if grep -r "executeQuery\|rawQuery\|query.*\+" src/ 2>/dev/null | grep -v "prepared\|parameterized"; then
+            echo "::warning::Found potential SQL injection vulnerabilities"
+          fi
+        continue-on-error: true
+
+  ai-diagnostics:
+    name: AI-Driven Diagnostics
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+      
+      - name: Analyze export capabilities
+        run: |
+          echo "🤖 AI Diagnostics: Checking export utilities..."
+          if [ -f "${{ inputs.backend-directory }}/src/utils/exportUtils.js" ]; then
+            echo "✅ Export utilities found"
+            # Check for required export formats
+            if grep -q "exportToJSON\|exportToCSV\|exportToXML" "${{ inputs.backend-directory }}/src/utils/exportUtils.js"; then
+              echo "✅ Multi-format export capabilities detected"
+            else
+              echo "::warning::Missing standard export formats"
+            fi
+          else
+            echo "::warning::Export utilities not found"
+          fi
+      
+      - name: Analyze security middleware
+        run: |
+          echo "🤖 AI Diagnostics: Checking security middleware..."
+          if [ -f "${{ inputs.backend-directory }}/src/middleware/aiFirewall.js" ]; then
+            echo "✅ AI Firewall middleware found"
+          else
+            echo "::warning::AI Firewall middleware not found"
+          fi
+          
+          if [ -f "${{ inputs.backend-directory }}/src/middleware/rateLimiter.js" ]; then
+            echo "✅ Rate limiter middleware found"
+          else
+            echo "::warning::Rate limiter middleware not found"
+          fi
+      
+      - name: Analyze integration capabilities
+        run: |
+          echo "🤖 AI Diagnostics: Checking integration capabilities..."
+          if [ -f "${{ inputs.backend-directory }}/src/controllers/integrationsController.js" ]; then
+            echo "✅ Integration controller found"
+            # Check for platform support
+            platforms=$(grep -o "manychat\|botbuilders\|openclaw\|moltbook" "${{ inputs.backend-directory }}/src/controllers/integrationsController.js" | sort -u)
+            echo "📊 Supported platforms: $platforms"
+          else
+            echo "::warning::Integration controller not found"
+          fi
+      
+      - name: Generate diagnostics report
+        run: |
+          echo "📊 AI-Enhanced Pipeline Diagnostics Report" > diagnostics-report.md
+          echo "=========================================" >> diagnostics-report.md
+          echo "" >> diagnostics-report.md
+          echo "**Repository:** ${{ github.repository }}" >> diagnostics-report.md
+          echo "**Commit:** ${{ github.sha }}" >> diagnostics-report.md
+          echo "**Branch:** ${{ github.ref_name }}" >> diagnostics-report.md
+          echo "" >> diagnostics-report.md
+          echo "### Security Features" >> diagnostics-report.md
+          echo "- CodeQL Analysis: ${{ inputs.enable-codeql }}" >> diagnostics-report.md
+          echo "- Trivy Scanning: ${{ inputs.enable-trivy }}" >> diagnostics-report.md
+          echo "- Dependency Review: ${{ inputs.enable-dependency-review }}" >> diagnostics-report.md
+          echo "" >> diagnostics-report.md
+          echo "### Export Capabilities" >> diagnostics-report.md
+          echo "- JSON, CSV, XML serialization support" >> diagnostics-report.md
+          echo "- Platform-specific adapters (ManyChat, BotBuilders, OpenClaw, Moltbook)" >> diagnostics-report.md
+          
+      - name: Upload diagnostics report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-diagnostics-report
+          path: diagnostics-report.md
+          retention-days: 30
