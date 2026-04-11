@@ -117,7 +117,26 @@ AI-Time-Machines supports cross-platform connectivity, allowing you to integrate
 }
 ```
 
-### 7. Moltbook
+### 7. MyClaw
+**Type:** Personal Analytics Platform  
+**Use Case:** Send predictions to a personal MyClaw dashboard for private data insights and custom visualizations  
+**Features:**
+- Personal analytics dashboards
+- Custom widget configuration
+- Private data insights
+
+**Configuration:**
+```json
+{
+  "platform": "myclaw",
+  "apiKey": "your-myclaw-api-key",
+  "webhookUrl": "https://myclaw.io/api/events"
+}
+```
+
+**Environment Variable:** `MYCLAW_API_KEY`
+
+### 8. Moltbook
 **Type:** Interactive Notebook Platform  
 **Use Case:** Embed predictions in interactive notebooks for analysis and visualization  
 **Features:**
