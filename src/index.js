@@ -1,5 +1,6 @@
 const ChatGPT = require('./chatgpt');
 const OpenClaw = require('./openclaw');
+const MyClaw = require('./myclaw');
 const Grok = require('./grok');
 const Replit = require('./replit');
 
@@ -11,6 +12,7 @@ const Replit = require('./replit');
 module.exports = {
   ChatGPT,
   OpenClaw,
+  MyClaw,
   Grok,
   Replit,
 };
