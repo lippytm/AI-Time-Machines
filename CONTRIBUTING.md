@@ -44,6 +44,46 @@ Feature suggestions are welcome! Please:
 - Update documentation as needed
 - Keep commits atomic and well-described
 
+#### Commit Messages
+
+We use [Conventional Commits](https://www.conventionalcommits.org/) to automate version management and CHANGELOG generation with [release-please](https://github.com/googleapis/release-please).
+
+**Commit message format:**
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+**Types:**
+- `feat`: New feature (triggers minor version bump)
+- `fix`: Bug fix (triggers patch version bump)
+- `docs`: Documentation changes
+- `style`: Code style changes (formatting, semicolons, etc.)
+- `refactor`: Code refactoring
+- `perf`: Performance improvements
+- `test`: Adding or updating tests
+- `build`: Build system changes
+- `ci`: CI/CD configuration changes
+- `chore`: Other changes that don't modify src or test files
+
+**Examples:**
+```
+feat(backend): add user authentication endpoint
+fix(frontend): resolve login form validation issue
+docs: update README with new API endpoints
+```
+
+**Breaking Changes:**
+Add `!` after the type/scope and include `BREAKING CHANGE:` in the footer:
+```
+feat(api)!: change user endpoint response format
+
+BREAKING CHANGE: user endpoint now returns data in a different structure
+```
+
 #### Pull Request Guidelines
 
 - Fill out the PR template completely
@@ -67,6 +107,48 @@ npm test
 
 # Run the application (if applicable)
 npm start
+```
+
+### Running Linters, Tests, and Builds
+
+**Backend:**
+```bash
+cd backend
+npm install
+npm run lint    # Run ESLint
+npm test        # Run tests
+npm run build   # Build the backend
+```
+
+**Frontend:**
+```bash
+cd frontend
+npm install
+npm run lint    # Run ESLint
+npm test        # Run tests
+npm run build   # Build the frontend for production
+```
+
+**Python Service:**
+```bash
+cd python-service
+pip install -r requirements.txt
+pip install ruff mypy pytest
+
+ruff check .    # Run linting with ruff
+mypy .          # Run type checking (if pyproject.toml exists)
+pytest          # Run tests
+```
+
+**Docker:**
+```bash
+# Build and run all services
+docker-compose up --build
+
+# Run individual service builds
+docker build ./backend
+docker build ./frontend
+docker build ./python-service
 ```
 
 ### Code of Conduct
