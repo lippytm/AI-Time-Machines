@@ -8,7 +8,7 @@ const {
   exportPredictionData
 } = require('../controllers/predictionsController');
 const { auth } = require('../middleware/auth');
-const { apiLimiter, createLimiter } = require('../middleware/rateLimiter');
+const { apiLimiter, createLimiter, exportLimiter } = require('../middleware/rateLimiter');
 
 const router = express.Router();
 
@@ -24,8 +24,8 @@ router.get('/', getAllPredictions);
 // Get single prediction
 router.get('/:id', getPrediction);
 
-// Export prediction in various formats
-router.get('/:id/export', exportPredictionData);
+// Export prediction in various formats - with specific rate limiting
+router.get('/:id/export', exportLimiter, exportPredictionData);
 
 // Create prediction
 router.post('/',
