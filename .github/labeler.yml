@@ -1,0 +1,46 @@
+frontend:
+  - changed-files:
+    - any-glob-to-any-file: 'frontend/**/*'
+
+backend:
+  - changed-files:
+    - any-glob-to-any-file: 'backend/**/*'
+
+python:
+  - changed-files:
+    - any-glob-to-any-file: 'python-service/**/*'
+
+docs:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/*.md'
+      - 'docs/**/*'
+
+infra:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '.github/**/*'
+      - 'docker-compose.yml'
+      - '**/Dockerfile'
+      - '.dockerignore'
+
+tests:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/*.test.js'
+      - '**/*.spec.js'
+      - '**/*.test.ts'
+      - '**/*.spec.ts'
+      - '**/test_*.py'
+      - '**/*_test.py'
+      - 'tests/**/*'
+
+dependencies:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'package.json'
+      - 'package-lock.json'
+      - '**/package.json'
+      - '**/package-lock.json'
+      - '**/requirements*.txt'
+      - 'pyproject.toml'
