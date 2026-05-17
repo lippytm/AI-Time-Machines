@@ -306,6 +306,13 @@ const getPlatforms = async (req, res) => {
         description: 'Generic webhook integration',
         features: ['webhooks', 'custom']
       },
+      {
+        value: 'github',
+        label: 'GitHub',
+        description: 'GitHub integration for syncing predictions as issues and managing repositories',
+        features: ['repositories', 'issues', 'sync'],
+        createRepoUrl: 'https://github.com/new'
+      },
       { 
         value: 'other', 
         label: 'Other',
