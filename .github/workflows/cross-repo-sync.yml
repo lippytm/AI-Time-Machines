@@ -1,0 +1,136 @@
+name: Cross-Repository Sync
+
+# Dispatches a repository_dispatch event to every sibling repository listed in
+# SIBLING_REPOS so they can react to changes in shared standards, workflows, or
+# configuration from AI-Time-Machines.
+#
+# Triggers:
+#   - Automatically on pushes to main that touch .github/workflows/ or config/
+#   - Manually via workflow_dispatch
+#
+# Required secret:
+#   GITHUB_PAT — Personal Access Token with `repo` and `workflow` scopes,
+#                configured in Settings → Secrets and variables → Actions.
+#                Without this secret the dispatch steps are skipped gracefully.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/**'
+      - '.github/copilot-instructions.md'
+      - 'config/**'
+      - '.env.example'
+  workflow_dispatch:
+    inputs:
+      target_repos:
+        description: |
+          Comma-separated list of repos to notify (e.g. "owner/repo1,owner/repo2").
+          Leave blank to use the default SIBLING_REPOS list.
+        required: false
+        default: ''
+      event_type:
+        description: 'repository_dispatch event type to send'
+        required: false
+        default: 'standards-updated'
+
+jobs:
+  notify-siblings:
+    name: Notify Sibling Repositories
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check PAT availability
+        id: check-pat
+        run: |
+          if [ -n "${{ secrets.GITHUB_PAT }}" ]; then
+            echo "PAT_AVAILABLE=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "PAT_AVAILABLE=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::GITHUB_PAT secret is not set — cross-repo dispatch will be skipped."
+            echo "Add a Personal Access Token with 'repo' and 'workflow' scopes to enable this feature."
+          fi
+
+      - name: Determine target repositories
+        id: targets
+        if: steps.check-pat.outputs.PAT_AVAILABLE == 'true'
+        run: |
+          # Default list of sibling repositories — add every repository in the
+          # lippytm organisation that should receive this notification.
+          # Format: owner/repo-name, one per line.
+          #
+          # Example (uncomment and edit as needed):
+          #   lippytm/repo-name-1
+          #   lippytm/repo-name-2
+          #
+          # To populate this list automatically, run:
+          #   gh repo list lippytm --limit 100 --json name -q '.[].name'
+          # and add each entry as "lippytm/<name>".
+          SIBLING_REPOS=""
+          # Replace default list if caller provided overrides via workflow_dispatch
+          INPUT="${{ github.event.inputs.target_repos }}"
+          if [ -n "$INPUT" ]; then
+            REPOS=$(echo "$INPUT" | tr ',' '\n' | sed 's/^[[:space:]]*//' | sed 's/[[:space:]]*$//')
+          else
+            REPOS=$(echo "$SIBLING_REPOS" | tr ',' '\n' | sed 's/^[[:space:]]*//' | sed 's/[[:space:]]*$//' | grep -v '^$')
+          fi
+
+          # Exclude the current repository from the dispatch list to avoid self-loops
+          CURRENT="${{ github.repository }}"
+          REPOS=$(echo "$REPOS" | grep -v "^${CURRENT}$" || true)
+
+          echo "Repositories to notify:"
+          echo "$REPOS"
+          # Store as newline-separated, then convert to JSON array for use in matrix
+          REPOS_JSON=$(echo "$REPOS" | grep -v '^$' | jq -R . | jq -sc .)
+          echo "repos_json=$REPOS_JSON" >> "$GITHUB_OUTPUT"
+
+      - name: Dispatch standards-updated event to sibling repos
+        if: steps.check-pat.outputs.PAT_AVAILABLE == 'true' && steps.targets.outputs.repos_json != '[]'
+        run: |
+          EVENT_TYPE="${{ github.event.inputs.event_type }}"
+          EVENT_TYPE="${EVENT_TYPE:-standards-updated}"
+
+          REPOS='${{ steps.targets.outputs.repos_json }}'
+          echo "$REPOS" | jq -r '.[]' | while IFS= read -r repo; do
+            echo "Dispatching '$EVENT_TYPE' to $repo ..."
+            HTTP_STATUS=$(curl -s -o /tmp/dispatch_response.json -w "%{http_code}" \
+              -X POST \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${{ secrets.GITHUB_PAT }}" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/${repo}/dispatches" \
+              -d "{\"event_type\":\"${EVENT_TYPE}\",\"client_payload\":{\"source\":\"${{ github.repository }}\",\"ref\":\"${{ github.ref }}\",\"sha\":\"${{ github.sha }}\"}}")
+
+            if [ "$HTTP_STATUS" -ge 200 ] && [ "$HTTP_STATUS" -lt 300 ]; then
+              echo "  ✓ Dispatched successfully (HTTP $HTTP_STATUS)"
+            else
+              echo "  ✗ Dispatch failed (HTTP $HTTP_STATUS)"
+              cat /tmp/dispatch_response.json
+              # Do not fail the workflow — a missing repo should not block the push
+            fi
+          done
+
+      - name: Summary
+        run: |
+          echo "=== Cross-Repository Sync Summary ==="
+          if [ "${{ steps.check-pat.outputs.PAT_AVAILABLE }}" = "true" ]; then
+            echo "✓ Dispatch events sent to sibling repositories."
+            echo ""
+            echo "To add more sibling repositories, edit the SIBLING_REPOS list in"
+            echo ".github/workflows/cross-repo-sync.yml and push to main."
+          else
+            echo "⚠ Skipped — GITHUB_PAT secret not configured."
+            echo ""
+            echo "To enable cross-repo sync:"
+            echo "  1. Create a Personal Access Token (PAT) with 'repo' and 'workflow' scopes"
+            echo "     at https://github.com/settings/tokens"
+            echo "  2. Add it as the GITHUB_PAT secret in each repository:"
+            echo "     Settings → Secrets and variables → Actions → New repository secret"
+            echo "  3. Add sibling repo names to the SIBLING_REPOS list in this workflow file"
+          fi
