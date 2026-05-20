@@ -300,6 +300,12 @@ const getPlatforms = async (req, res) => {
         description: 'Replit integration for deploying and monetizing AI apps in the cloud',
         features: ['deployment', 'cloud', 'collaboration', 'monetization']
       },
+      {
+        value: 'github',
+        label: 'GitHub',
+        description: 'Sync predictions and data to a GitHub repository using a Personal Access Token',
+        features: ['sync', 'version-control', 'repository', 'collaboration']
+      },
       { 
         value: 'webhook', 
         label: 'Custom Webhook',
@@ -386,6 +392,13 @@ function formatPredictionForPlatform(platform, prediction) {
           entry: 'main.py'
         },
         format: 'replit'
+      };
+    case 'github':
+      return {
+        file_path: `predictions/${prediction.id}.json`,
+        content: baseData,
+        commit_message: `Sync prediction ${prediction.id} from AI-Time-Machines`,
+        format: 'github'
       };
     default:
       return baseData;

@@ -66,7 +66,34 @@ AI-Time-Machines supports cross-platform connectivity, allowing you to integrate
 
 ---
 
-### 4. ManyChat
+### 4. GitHub
+**Type:** Version Control & Collaboration Platform  
+**Use Case:** Sync AI Time Machines predictions to a GitHub repository for version control, collaboration, and sharing  
+**Features:**
+- Sync predictions as JSON files committed directly to a repository
+- Create GitHub Issues with detailed prediction reports
+- List previously synced predictions in a repository
+- Full version history of all prediction data
+
+**Configuration:**
+```json
+{
+  "platform": "github",
+  "apiKey": "your-github-personal-access-token",
+  "config": {
+    "owner": "your-github-username",
+    "repo": "your-repository-name"
+  }
+}
+```
+
+**Environment Variable:** `GITHUB_TOKEN`
+
+> **Note:** Your Personal Access Token (PAT) must have `repo` scope to read and write repository contents and create issues.
+
+---
+
+### 5. ManyChat
 **Type:** Chatbot Platform  
 **Use Case:** Send prediction updates to Facebook Messenger chatbots  
 **Features:**
@@ -83,7 +110,7 @@ AI-Time-Machines supports cross-platform connectivity, allowing you to integrate
 }
 ```
 
-### 5. BotBuilders
+### 6. BotBuilders
 **Type:** Multi-Platform Chatbot Builder  
 **Use Case:** Automate prediction notifications across multiple messaging platforms  
 **Features:**
@@ -100,7 +127,7 @@ AI-Time-Machines supports cross-platform connectivity, allowing you to integrate
 }
 ```
 
-### 6. OpenClaw
+### 7. OpenClaw
 **Type:** Analytics & Automation Platform  
 **Use Case:** Feed predictions into analytics pipelines and automation workflows  
 **Features:**
@@ -117,7 +144,7 @@ AI-Time-Machines supports cross-platform connectivity, allowing you to integrate
 }
 ```
 
-### 7. Moltbook
+### 8. Moltbook
 **Type:** Interactive Notebook Platform  
 **Use Case:** Embed predictions in interactive notebooks for analysis and visualization  
 **Features:**
