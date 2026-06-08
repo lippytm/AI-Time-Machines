@@ -152,10 +152,65 @@ const deleteModel = async (req, res) => {
   }
 };
 
+// Stream real-time model training status via Server-Sent Events
+const streamModelStatus = async (req, res) => {
+  const { id } = req.params;
+
+  const model = await AIModel.findOne({ where: { id, userId: req.userId } });
+  if (!model) {
+    return res.status(404).json({ error: { message: 'Model not found' } });
+  }
+
+  // Set SSE headers
+  res.set({
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive',
+    'X-Accel-Buffering': 'no'
+  });
+  res.flushHeaders();
+
+  const sendEvent = (data) => {
+    res.write(`data: ${JSON.stringify(data)}\n\n`);
+  };
+
+  // Send initial state
+  sendEvent({ status: model.status, modelId: model.id, timestamp: new Date().toISOString() });
+
+  // Poll for status changes every 5 seconds
+  const interval = setInterval(async () => {
+    try {
+      const updated = await AIModel.findByPk(id);
+      if (!updated) {
+        clearInterval(interval);
+        res.end();
+        return;
+      }
+      sendEvent({ status: updated.status, modelId: updated.id, metrics: updated.metrics, timestamp: new Date().toISOString() });
+
+      // Stop streaming once training completes or fails
+      if (updated.status === 'completed' || updated.status === 'failed') {
+        clearInterval(interval);
+        res.end();
+      }
+    } catch (err) {
+      console.error('SSE polling error:', err.message);
+      clearInterval(interval);
+      res.end();
+    }
+  }, 5000);
+
+  // Clean up on client disconnect
+  req.on('close', () => {
+    clearInterval(interval);
+  });
+};
+
 module.exports = {
   getAllModels,
   getModel,
   createModel,
   updateModelStatus,
-  deleteModel
+  deleteModel,
+  streamModelStatus
 };

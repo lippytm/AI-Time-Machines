@@ -8,17 +8,18 @@ import time
 
 
 class LSTMModel:
-    """LSTM-based time series forecasting model"""
+    """Recurrent time series forecasting model supporting LSTM and GRU architectures."""
 
-    def __init__(self, sequence_length=30, units=50, dropout=0.2):
+    def __init__(self, sequence_length=30, units=50, dropout=0.2, use_gru=False):
         self.sequence_length = sequence_length
         self.units = units
         self.dropout = dropout
+        self.use_gru = use_gru
         self.model = None
         self.scaler = MinMaxScaler()
 
     def prepare_data(self, data, test_size=0.2):
-        """Prepare time series data for LSTM training"""
+        """Prepare time series data for LSTM/GRU training"""
         # Convert to pandas DataFrame
         df = pd.DataFrame(data)
         df['timestamp'] = pd.to_datetime(df['timestamp'])
@@ -45,15 +46,18 @@ class LSTMModel:
         return X_train, X_test, y_train, y_test
 
     def build_model(self):
-        """Build LSTM model architecture"""
+        """Build LSTM or GRU model architecture depending on self.use_gru"""
+        recurrent_layer = layers.GRU if self.use_gru else layers.LSTM
+        arch_name = 'GRU' if self.use_gru else 'LSTM'
+
         model = keras.Sequential([
-            layers.LSTM(self.units, return_sequences=True, input_shape=(self.sequence_length, 1)),
+            recurrent_layer(self.units, return_sequences=True, input_shape=(self.sequence_length, 1)),
             layers.Dropout(self.dropout),
-            layers.LSTM(self.units, return_sequences=False),
+            recurrent_layer(self.units, return_sequences=False),
             layers.Dropout(self.dropout),
             layers.Dense(25),
             layers.Dense(1)
-        ])
+        ], name=f'{arch_name}_TimeSeriesModel')
 
         model.compile(
             optimizer='adam',
@@ -65,7 +69,7 @@ class LSTMModel:
         return model
 
     def train(self, data, epochs=50, batch_size=32, validation_split=0.1):
-        """Train the LSTM model"""
+        """Train the LSTM/GRU model"""
         start_time = time.time()
 
         # Prepare data
@@ -95,7 +99,8 @@ class LSTMModel:
             'test_loss': float(test_loss),
             'test_mae': float(test_mae),
             'training_time': int(training_time),
-            'epochs': epochs
+            'epochs': epochs,
+            'architecture': 'GRU' if self.use_gru else 'LSTM'
         }
 
     def predict(self, input_sequence, horizon=10):

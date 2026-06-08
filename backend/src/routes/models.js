@@ -5,7 +5,8 @@ const {
   getModel,
   createModel,
   updateModelStatus,
-  deleteModel
+  deleteModel,
+  streamModelStatus
 } = require('../controllers/modelsController');
 const { auth } = require('../middleware/auth');
 const { apiLimiter, createLimiter } = require('../middleware/rateLimiter');
@@ -20,6 +21,9 @@ router.use(apiLimiter);
 
 // Get all models
 router.get('/', getAllModels);
+
+// Stream real-time training status updates via Server-Sent Events
+router.get('/:id/stream', streamModelStatus);
 
 // Get single model
 router.get('/:id', getModel);
