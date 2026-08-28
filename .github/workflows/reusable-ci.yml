@@ -1,0 +1,193 @@
+name: Reusable CI
+
+# This workflow can be called from any sibling repository via:
+#
+#   jobs:
+#     shared-ci:
+#       uses: lippytm/AI-Time-Machines/.github/workflows/reusable-ci.yml@main
+#       secrets: inherit
+#
+# It runs security scanning, linting, and basic smoke tests that apply
+# to every repository in the lippytm organisation.
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: 'Node.js version to use'
+        required: false
+        type: string
+        default: '18'
+      python-version:
+        description: 'Python version to use'
+        required: false
+        type: string
+        default: '3.11'
+      run-node-lint:
+        description: 'Run ESLint if a package.json with eslint is present'
+        required: false
+        type: boolean
+        default: true
+      run-python-lint:
+        description: 'Run Ruff if Python files are present'
+        required: false
+        type: boolean
+        default: true
+      run-security-scan:
+        description: 'Run Trivy filesystem security scan'
+        required: false
+        type: boolean
+        default: true
+    secrets:
+      OPENAI_API_KEY:
+        required: false
+      GITHUB_PAT:
+        required: false
+
+jobs:
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    if: ${{ inputs.run-security-scan }}
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.30.0
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          exit-code: '0'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  node-lint:
+    name: Node.js Lint
+    runs-on: ubuntu-latest
+    if: ${{ inputs.run-node-lint }}
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for package.json
+        id: check-pkg
+        run: |
+          if [ -f "package.json" ] && grep -q '"eslint"' package.json 2>/dev/null; then
+            echo "HAS_ESLINT=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "HAS_ESLINT=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Node.js
+        if: steps.check-pkg.outputs.HAS_ESLINT == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        if: steps.check-pkg.outputs.HAS_ESLINT == 'true'
+        run: npm ci --ignore-scripts
+
+      - name: Run ESLint
+        if: steps.check-pkg.outputs.HAS_ESLINT == 'true'
+        run: npm run lint --if-present
+
+  python-lint:
+    name: Python Lint
+    runs-on: ubuntu-latest
+    if: ${{ inputs.run-python-lint && hashFiles('**/*.py') != '' }}
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+
+      - name: Install Ruff
+        run: pip install --quiet ruff
+
+      - name: Run Ruff
+        run: ruff check .
+
+  dependency-audit:
+    name: Dependency Audit
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Audit Node.js dependencies
+        id: node-audit
+        run: |
+          if [ -f "package-lock.json" ]; then
+            echo "Auditing root package-lock.json..."
+            npx --yes better-npm-audit audit --level moderate || echo "Audit completed with findings"
+          fi
+          for lockfile in backend/package-lock.json frontend/package-lock.json; do
+            if [ -f "$lockfile" ]; then
+              dir=$(dirname "$lockfile")
+              echo "Auditing $lockfile..."
+              (cd "$dir" && npx --yes better-npm-audit audit --level moderate) || echo "Audit completed with findings in $lockfile"
+            fi
+          done
+        continue-on-error: true
+
+      - name: Audit Python dependencies
+        run: |
+          for reqfile in requirements.txt python-service/requirements.txt; do
+            if [ -f "$reqfile" ]; then
+              echo "Auditing $reqfile..."
+              pip install --quiet pip-audit
+              pip-audit -r "$reqfile" || echo "pip-audit completed with findings in $reqfile"
+            fi
+          done
+        continue-on-error: true
+
+  docs-check:
+    name: Documentation Check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify README exists
+        run: |
+          if [ ! -f README.md ]; then
+            echo "::error::README.md is missing — every repository must have a README"
+            exit 1
+          fi
+          echo "✓ README.md found"
+
+      - name: Verify .env.example exists
+        run: |
+          if [ ! -f .env.example ]; then
+            echo "::warning::.env.example is missing — add one to document required environment variables"
+          else
+            echo "✓ .env.example found"
+          fi
