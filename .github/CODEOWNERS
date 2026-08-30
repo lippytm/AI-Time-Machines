@@ -1,0 +1,19 @@
+# Default owners for everything in the repo
+* @lippytm
+
+# Frontend code owners
+/frontend/ @lippytm
+
+# Backend code owners
+/backend/ @lippytm
+
+# Python service owners
+/python-service/ @lippytm
+
+# Infrastructure and CI/CD
+/.github/ @lippytm
+/docker-compose.yml @lippytm
+**/Dockerfile @lippytm
+
+# Documentation
+*.md @lippytm
