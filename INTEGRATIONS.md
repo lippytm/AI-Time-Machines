@@ -117,7 +117,28 @@ AI-Time-Machines supports cross-platform connectivity, allowing you to integrate
 }
 ```
 
-### 7. Moltbook
+**Environment Variable:** `OPENCLAW_API_KEY`
+
+### 7. MyClaw
+**Type:** Personal Automation & Notification Platform  
+**Use Case:** Send prediction alerts and sync forecast data to personal dashboards  
+**Features:**
+- Multi-channel notifications (email, SMS, push)
+- Personal dashboard widgets
+- Prediction alert automation
+
+**Configuration:**
+```json
+{
+  "platform": "myclaw",
+  "apiKey": "your-myclaw-api-key",
+  "webhookUrl": "https://myclaw.io/api/events"
+}
+```
+
+**Environment Variable:** `MYCLAW_API_KEY`
+
+### 8. Moltbook
 **Type:** Interactive Notebook Platform  
 **Use Case:** Embed predictions in interactive notebooks for analysis and visualization  
 **Features:**
@@ -211,6 +232,7 @@ Authorization: Bearer {token}
 - `manychat` - ManyChat-specific format
 - `botbuilders` - BotBuilders-specific format
 - `openclaw` - OpenClaw analytics format
+- `myclaw` - MyClaw notification format
 - `moltbook` - Moltbook notebook format
 
 ## Export Format Examples

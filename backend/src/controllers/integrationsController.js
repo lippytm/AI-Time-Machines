@@ -276,6 +276,12 @@ const getPlatforms = async (req, res) => {
         description: 'Open analytics and automation platform',
         features: ['analytics', 'automation', 'data-export']
       },
+      {
+        value: 'myclaw',
+        label: 'MyClaw',
+        description: 'Personal automation and notification platform for dashboards and alerts',
+        features: ['notifications', 'dashboards', 'automation', 'alerts']
+      },
       { 
         value: 'moltbook', 
         label: 'Moltbook',
@@ -349,6 +355,16 @@ function formatPredictionForPlatform(platform, prediction) {
       return {
         analytics: baseData,
         format: 'openclaw'
+      };
+    case 'myclaw':
+      return {
+        channel: 'email',
+        message: {
+          title: `New Prediction: ${baseData.predictionId}`,
+          body: `Model ${baseData.model || 'N/A'} generated ${baseData.predictions ? baseData.predictions.length : 0} forecast values.`,
+          data: baseData,
+        },
+        format: 'myclaw'
       };
     case 'moltbook':
       return {
