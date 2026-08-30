@@ -2,7 +2,7 @@
  * Integration Examples
  * 
  * This file demonstrates how to use the platform integrations with
- * ManyChat, BotBuilders, OpenClaw, and Moltbook.
+ * ManyChat, BotBuilders, OpenClaw, MyClaw, and Moltbook.
  */
 
 const axios = require('axios');
@@ -98,7 +98,33 @@ async function createOpenClawIntegration() {
 }
 
 /**
- * Example 4: Create a Moltbook Integration
+ * Example 4: Create a MyClaw Integration
+ */
+async function createMyClawIntegration() {
+  console.log('\n=== Creating MyClaw Integration ===');
+  
+  try {
+    const response = await api.post('/integrations', {
+      name: 'Personal Dashboard',
+      platform: 'myclaw',
+      description: 'Send predictions to MyClaw personal analytics dashboard',
+      apiKey: process.env.MYCLAW_API_KEY,
+      webhookUrl: 'https://myclaw.io/api/events',
+      config: {
+        widgetId: 'predictions-widget',
+        autoUpdate: true
+      }
+    });
+    
+    console.log('✅ Integration created:', response.data.integration.id);
+    return response.data.integration;
+  } catch (error) {
+    console.error('❌ Failed to create integration:', error.response?.data || error.message);
+  }
+}
+
+/**
+ * Example 5: Create a Moltbook Integration
  */
 async function createMoltbookIntegration() {
   console.log('\n=== Creating Moltbook Integration ===');
@@ -124,7 +150,7 @@ async function createMoltbookIntegration() {
 }
 
 /**
- * Example 5: List All Integrations
+ * Example 6: List All Integrations
  */
 async function listIntegrations() {
   console.log('\n=== Listing All Integrations ===');
@@ -144,7 +170,7 @@ async function listIntegrations() {
 }
 
 /**
- * Example 6: Test an Integration
+ * Example 7: Test an Integration
  */
 async function testIntegration(integrationId) {
   console.log('\n=== Testing Integration ===');
@@ -160,7 +186,7 @@ async function testIntegration(integrationId) {
 }
 
 /**
- * Example 7: Send Prediction to Integration
+ * Example 8: Send Prediction to Integration
  */
 async function sendPredictionToIntegration(integrationId, predictionId) {
   console.log('\n=== Sending Prediction to Integration ===');
@@ -178,12 +204,12 @@ async function sendPredictionToIntegration(integrationId, predictionId) {
 }
 
 /**
- * Example 8: Export Prediction in Different Formats
+ * Example 9: Export Prediction in Different Formats
  */
 async function exportPredictionExamples(predictionId) {
   console.log('\n=== Exporting Prediction in Multiple Formats ===');
   
-  const formats = ['json', 'csv', 'xml', 'manychat', 'botbuilders', 'openclaw', 'moltbook'];
+  const formats = ['json', 'csv', 'xml', 'manychat', 'botbuilders', 'openclaw', 'myclaw', 'moltbook'];
   
   for (const format of formats) {
     try {
@@ -223,6 +249,7 @@ async function main() {
   const manychat = await createManyChatIntegration();
   const botbuilders = await createBotBuildersIntegration();
   const openclaw = await createOpenClawIntegration();
+  const myclaw = await createMyClawIntegration();
   const moltbook = await createMoltbookIntegration();
   
   // List all integrations
@@ -247,6 +274,7 @@ module.exports = {
   createManyChatIntegration,
   createBotBuildersIntegration,
   createOpenClawIntegration,
+  createMyClawIntegration,
   createMoltbookIntegration,
   listIntegrations,
   testIntegration,

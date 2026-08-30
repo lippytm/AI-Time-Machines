@@ -20,6 +20,7 @@ const Integration = sequelize.define('Integration', {
       'manychat',
       'botbuilders',
       'openclaw',
+      'myclaw',
       'moltbook',
       'chatgpt',
       'grok',
