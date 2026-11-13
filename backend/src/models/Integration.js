@@ -24,6 +24,7 @@ const Integration = sequelize.define('Integration', {
       'chatgpt',
       'grok',
       'replit',
+      'github',
       'webhook',
       'other'
     ),

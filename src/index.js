@@ -2,6 +2,7 @@ const ChatGPT = require('./chatgpt');
 const OpenClaw = require('./openclaw');
 const Grok = require('./grok');
 const Replit = require('./replit');
+const GitHub = require('./github');
 
 /**
  * Main entry point for AI-Time-Machines integrations
@@ -13,6 +14,7 @@ module.exports = {
   OpenClaw,
   Grok,
   Replit,
+  GitHub,
 };
 
 /**
